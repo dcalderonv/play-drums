@@ -1189,6 +1189,39 @@
   window.addEventListener('popstate', loadFromURL);
   window.addEventListener('pagehide', savePractice);
 
+  /* ---------- Installing the app ---------- */
+  // The service worker keeps a copy of the app for offline use; it needs http(s), so file:// pages skip it.
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => { /* the app still works online */ }));
+  }
+
+  const installed = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  let installPrompt = null;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    installPrompt = e;
+    $('#install').hidden = false;
+    $('#install-btn').hidden = false;
+  });
+
+  $('#install-btn').addEventListener('click', async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    await installPrompt.userChoice.catch(() => null);
+    installPrompt = null;
+    $('#install').hidden = true;
+  });
+
+  window.addEventListener('appinstalled', () => { $('#install').hidden = true; });
+
+  // Safari on iPhone and iPad has no install prompt; it installs from the Share menu.
+  const iOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (iOS && !installed()) {
+    $('#install').hidden = false;
+    $('#install-ios').hidden = false;
+  }
+
   /* ---------- Boot ---------- */
   renderToday();
   renderPlayButton();

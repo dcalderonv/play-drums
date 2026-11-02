@@ -9,6 +9,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0d1013">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -55,6 +60,15 @@
             <div><dt>Arrows</dt><dd>Move between pads</dd></div>
           </dl>
           <p class="library__note">A pad cycles through hit, accent, ghost note and off.</p>
+        </section>
+
+        <section class="library__group" aria-labelledby="install-h" id="install" hidden>
+          <h2 id="install-h">Install</h2>
+          <p class="library__note">Put Play Drums on your home screen or desktop. It opens in its own window and works without a connection.</p>
+          <div class="library__actions">
+            <button class="btn" type="button" id="install-btn" hidden>Install Play Drums</button>
+          </div>
+          <p class="library__note" id="install-ios" hidden>In Safari, tap Share, then Add to Home Screen.</p>
         </section>
       </div>
     </nav>
