@@ -49,8 +49,10 @@ self.addEventListener('fetch', (event) => {
 
   if (url.origin !== self.location.origin) return;
 
+  // no-cache asks the server whether the file changed, instead of trusting the browser's own copy
+  // (GitHub Pages lets browsers keep files for ten minutes, which would hide a fresh push).
   event.respondWith(
-    fetch(req)
+    fetch(req, { cache: 'no-cache' })
       .then((res) => {
         if (res.ok) {
           // An exercise link like ?ex=samba is the same page, so it is stored once, without the query.
