@@ -144,7 +144,7 @@ mark { border-radius: 2px; background: var(--color-accent-soft); color: var(--co
   border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer;
   transition: color var(--dur-short) var(--ease-out);
 }
-.fold:hover { color: var(--color-ink); }
+.fold:hover, .fold.is-current { color: var(--color-ink); }
 .fold:active .fold__icon { translate: 0 1px; }
 .fold:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; border-radius: 4px; }
 .fold__count { margin-left: auto; font-weight: 400; }

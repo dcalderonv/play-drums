@@ -362,11 +362,22 @@
     sticking: null,
     bpm: 80,
     playing: false,
-    opts: { click: true, countIn: true, groove: true },
+    opts: null,
   };
   const meter = () => METERS[state.meter];
   const beats = () => meter().beats;
   const sub = () => state.sub;
+
+  /* Playback settings are kept apart for exercises and saved grooves: exercises start with the click
+     and count-in on, grooves with both off, and each keeps whatever you change. */
+  const PLAYBACK = { exercise: { click: true, countIn: true, groove: true }, groove: { click: false, countIn: false, groove: true } };
+  const savedPlayback = store.get('playback', {});
+  const playback = Object.fromEntries(Object.entries(PLAYBACK).map(([k, d]) => [k, { ...d, ...(savedPlayback[k] || {}) }]));
+  function renderToggles() {
+    for (const [id, key] of Object.entries({ 'opt-click': 'click', 'opt-countin': 'countIn', 'opt-groove': 'groove' })) {
+      document.getElementById(id).setAttribute('aria-pressed', String(!!state.opts[key]));
+    }
+  }
   const total = () => state.grid * BARS;
   const setShape = (sh) => { state.meter = sh.meter; state.sub = sh.sub; state.grid = sh.grid; };
 
@@ -984,6 +995,8 @@
   /* ---------- Library ---------- */
   /* ---------- Library: folding, searching and sorting ---------- */
   const folds = store.get('folds', {});
+  // Exercise levels start folded; the ones you open are remembered. My grooves and Keys start open.
+  const openLevels = store.get('open-levels', {});
   let grooveSort = store.get('groove-sort', 'newest');
   let query = '';
   const CHEVRON = '<svg class="icon fold__icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>';
@@ -1009,10 +1022,11 @@
     tempo: (a, b) => a.bpm - b.bpm || a.name.localeCompare(b.name, undefined, { numeric: true }),
   };
 
-  const foldButton = (key, label, controls, count) => {
-    const open = !folds[key];
-    return `<button class="fold" type="button" data-fold="${key}" aria-expanded="${open}" aria-controls="${controls}"><span>${label}</span> <span class="fold__count">${count}</span>${CHEVRON}</button>`;
-  };
+  const isSection = (key) => key === 'grooves' || key === 'keys';
+  const isOpen = (key) => (isSection(key) ? !folds[key] : !!openLevels[key]);
+
+  // The level holding the exercise you are on is marked, so it can be found while folded.
+  const foldButton = (key, label, controls, count, current) => `<button class="fold${current ? ' is-current' : ''}" type="button" data-fold="${key}" aria-expanded="${isOpen(key)}" aria-controls="${controls}"><span>${label}</span> <span class="fold__count">${count}</span>${CHEVRON}</button>`;
 
   const exRow = (ex, extra) => {
     const best = bests[ex.id];
@@ -1043,8 +1057,8 @@
             const key = `${c.id}-${n + 1}`;
             return `
           <section class="library__group" aria-labelledby="unit-${key}">
-            <h2 id="unit-${key}">${foldButton(key, u.title, 'list-' + key, u.items.length)}</h2>
-            <ol class="ex-list" id="list-${key}"${folds[key] ? ' hidden' : ''}>${u.items.map((ex) => exRow(ex)).join('')}</ol>
+            <h2 id="unit-${key}">${foldButton(key, u.title, 'list-' + key, u.items.length, state.kind === 'exercise' && u.items.some((ex) => ex.id === state.item.id))}</h2>
+            <ol class="ex-list" id="list-${key}"${isOpen(key) ? '' : ' hidden'}>${u.items.map((ex) => exRow(ex)).join('')}</ol>
           </section>`;
           }).join('')}
         </div>`).join('');
@@ -1084,19 +1098,16 @@
 
   function toggleFold(key) {
     if (key === 'grooves' && query.trim()) return;
-    if (folds[key]) delete folds[key]; else folds[key] = true;
-    store.set('folds', folds);
+    if (isSection(key)) {
+      if (folds[key]) delete folds[key]; else folds[key] = true;
+      store.set('folds', folds);
+    } else {
+      if (openLevels[key]) delete openLevels[key]; else openLevels[key] = true;
+      store.set('open-levels', openLevels);
+    }
     renderLibrary();
     const btn = document.querySelector(`.library [data-fold="${key}"]`);
     if (btn) btn.focus();
-  }
-
-  /* Opening an item from a search, a link or the back button opens the level it sits in. */
-  function unfoldCurrent() {
-    if (state.kind !== 'exercise') return;
-    const u = GROUPS.find((c) => c.id === state.item.collection).units.findIndex((x) => x.items.some((ex) => ex.id === state.item.id));
-    const key = `${state.item.collection}-${u + 1}`;
-    if (folds[key]) { delete folds[key]; store.set('folds', folds); }
   }
 
   const searchInput = $('#lib-search');
@@ -1415,10 +1426,10 @@
   /* ---------- Toggles and actions ---------- */
   const toggles = { 'opt-click': 'click', 'opt-countin': 'countIn', 'opt-groove': 'groove' };
   for (const [id, key] of Object.entries(toggles)) {
-    const el = document.getElementById(id);
-    el.addEventListener('click', () => {
+    document.getElementById(id).addEventListener('click', () => {
       state.opts[key] = !state.opts[key];
-      el.setAttribute('aria-pressed', String(state.opts[key]));
+      store.set('playback', playback);
+      renderToggles();
     });
   }
 
@@ -1500,11 +1511,12 @@
     if (!item) { kind = 'exercise'; item = EXERCISES.get('basic-rock'); }
     state.kind = kind;
     state.item = item;
+    state.opts = playback[kind];
+    renderToggles();
     setShape(shapeOf(item));
     state.pattern = normalize(item.pattern, state.grid);
     state.sticking = item.sticking || null;
     if (kind === 'exercise') state.view = item.collection;
-    unfoldCurrent();
     if (state.playing) { nextStep %= total(); queue = queue.filter((q) => q.count); shown = null; }
     setBpm(bpm || (kind === 'groove' ? item.bpm : item.start));
     renderHeader();
