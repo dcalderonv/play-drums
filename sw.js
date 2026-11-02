@@ -2,7 +2,7 @@
    The app's own files are fetched fresh when online and fall back to the copy when not, so a new
    version arrives on the next visit and the HTML, CSS and script never come from different versions.
    Fonts never change, so they are served from the copy first. Raise VERSION when the file list changes. */
-const VERSION = 'play-drums-v1';
+const VERSION = 'play-drums-v2';
 const FONTS = 'play-drums-fonts';
 const SHELL = [
   './',
@@ -18,6 +18,9 @@ const SHELL = [
   './icons/icon-maskable-512.png',
   './icons/apple-touch-icon.png',
   './icons/favicon-32.png',
+  // The recorded kit: three strengths of each drum.
+  ...['crash', 'ride', 'openhat', 'hihat', 'hightom', 'snare', 'crossstick', 'floortom', 'kick', 'hatfoot']
+    .flatMap((d) => ['soft', 'medium', 'hard'].map((s) => `./sounds/${d}-${s}.wav`)),
 ];
 
 self.addEventListener('install', (event) => {

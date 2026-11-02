@@ -393,7 +393,13 @@
       try { ctx = new AC(); } catch { return null; }
       master = ctx.createGain();
       master.gain.value = 0.8;
-      master.connect(ctx.destination);
+      const limiter = ctx.createDynamicsCompressor();
+      limiter.threshold.value = -6;
+      limiter.knee.value = 6;
+      limiter.ratio.value = 12;
+      limiter.attack.value = 0.002;
+      limiter.release.value = 0.12;
+      master.connect(limiter).connect(ctx.destination);
       noiseBuffer = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
       const d = noiseBuffer.getChannelData(0);
       for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
@@ -442,6 +448,52 @@
   const CLICK = [[980, 950, 0.1], [1250, 1200, 0.2], [1900, 1850, 0.32]];
   const click = (t, level) => { const [f0, f1, g] = CLICK[level]; tone(t, f0, f1, 0.04, g, 'square'); };
 
+  /* ---------- The recorded kit ----------
+     Virtuosity Drums by Versilian Studios, public domain (CC0); see sounds/SOURCE.md.
+     Each drum has three recorded strengths: a hit plays the medium one, an accent the hard one,
+     a ghost note the soft one. The files start loading with the page and are decoded once sound
+     is allowed; until then, or if they cannot load (a page opened from disk), the synthesised
+     voices above play instead. */
+  const STRENGTHS = ['soft', 'medium', 'hard'];
+  const LAYER_FOR_LEVEL = ['', 'medium', 'hard', 'soft'];
+  const kitFiles = location.protocol.startsWith('http')
+    ? Promise.all(INSTRUMENTS.flatMap((i) => STRENGTHS.map((s) => fetch(`sounds/${i.id}-${s}.wav`)
+      .then((r) => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+      .then((bytes) => [`${i.id}-${s}`, bytes])))).catch(() => null)
+    : Promise.resolve(null);
+  let kit = null;
+  let kitDecoding = null;
+
+  function decodeKit() {
+    if (!kitDecoding && ctx) {
+      kitDecoding = kitFiles
+        .then((files) => (files ? Promise.all(files.map(async ([key, bytes]) => [key, await ctx.decodeAudioData(bytes.slice(0))])) : null))
+        .then((decoded) => { kit = decoded && Object.fromEntries(decoded); return kit; })
+        .catch(() => null);
+    }
+    return kitDecoding || Promise.resolve(null);
+  }
+
+  // A closed hi-hat or the pedal chokes an open hi-hat that is still ringing, as on a real stand.
+  let openHats = [];
+  function hit(id, t, level) {
+    const buffer = kit && kit[`${id}-${LAYER_FOR_LEVEL[level]}`];
+    if (!buffer) { VOICES[id](t, VELOCITY[level]); return; }
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    const g = ctx.createGain();
+    src.connect(g).connect(master);
+    src.start(t);
+    if (id === 'hihat' || id === 'hatfoot') {
+      for (const o of openHats) if (o.t < t) o.g.gain.setTargetAtTime(0, t, 0.015);
+    }
+    if (id === 'openhat') {
+      const entry = { g, t };
+      openHats.push(entry);
+      src.onended = () => { openHats = openHats.filter((o) => o !== entry); };
+    }
+  }
+
   /* ---------- Scheduler (look-ahead on the audio clock) ---------- */
   const LOOKAHEAD = 0.12;
   let timer = null;
@@ -463,7 +515,7 @@
     if (state.opts.groove) {
       for (const i of INSTRUMENTS) {
         const v = state.pattern[i.id][step];
-        if (v) VOICES[i.id](t, VELOCITY[v]);
+        if (v) hit(i.id, t, v);
       }
     }
   }
@@ -478,10 +530,19 @@
     }
   }
 
-  function start() {
+  let starting = false;
+  async function start() {
+    if (starting) return;
     if (!ensureAudio()) {
       setStatus('This browser cannot play sound, so the groove will not be heard. The score and the beat box still work; Chrome, Firefox and Safari all play it.', true);
       return;
+    }
+    if (!kit) {
+      // The recorded kit is usually ready within a moment; never wait more than three seconds for it.
+      starting = true;
+      setStatus('Loading the drum kit.');
+      await Promise.race([decodeKit(), new Promise((r) => setTimeout(r, 3000))]);
+      starting = false;
     }
     setStatus('');
     state.playing = true;
@@ -675,7 +736,7 @@
     const { inst, step } = pad.dataset;
     const row = state.pattern[inst];
     row[step] = (row[step] + 1) % 4;
-    if (row[step] && !state.playing && ensureAudio()) VOICES[inst](ctx.currentTime + 0.01, VELOCITY[row[step]]);
+    if (row[step] && !state.playing && ensureAudio()) { decodeKit(); hit(inst, ctx.currentTime + 0.01, row[step]); }
     onPatternChange();
   });
 
