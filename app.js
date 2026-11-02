@@ -627,8 +627,10 @@
     raf = requestAnimationFrame(frame);
   }
 
+  // Set while a restored backup reloads the page, so the old practice time is not written over it.
+  let restoring = false;
   function savePractice() {
-    if (practisedSinceSave <= 0) return;
+    if (restoring || practisedSinceSave <= 0) return;
     practice[todayKey] = (practice[todayKey] || 0) + practisedSinceSave;
     practisedSinceSave = 0;
     store.set('practice', practice);
@@ -1103,7 +1105,8 @@
     tempo: (a, b) => a.bpm - b.bpm || a.name.localeCompare(b.name, undefined, { numeric: true }),
   };
 
-  const isSection = (key) => key === 'grooves' || key === 'keys';
+  const SECTIONS = ['grooves', 'backup', 'keys'];
+  const isSection = (key) => SECTIONS.includes(key);
   const isOpen = (key) => (isSection(key) ? !folds[key] : !!openLevels[key]);
 
   // The level holding the exercise you are on is marked, so it can be found while folded.
@@ -1167,7 +1170,7 @@
     sort.hidden = grooves.length < 2;
     sort.value = grooveSort;
     // While searching, My grooves stays open so its matches are never hidden.
-    for (const key of ['grooves', 'keys']) {
+    for (const key of SECTIONS) {
       const btn = document.querySelector(`.library [data-fold="${key}"]`);
       const open = (key === 'grooves' && searching) || !folds[key];
       btn.setAttribute('aria-expanded', String(open));
@@ -1362,6 +1365,148 @@
     if (file.size > 2 * 1024 * 1024) { groovesSay('That file is too large to be a groove file.'); return; }
     file.text().then(importGrooves, () => groovesSay('That file could not be read. Try choosing it again.'));
   });
+
+  /* ---------- Backing up and restoring everything ----------
+     A backup is every value this app keeps in the browser: grooves, clean runs, practice time and
+     settings. Restoring replaces them all, so it asks first; the page then reloads from the restored data. */
+  const BACKUP_KEYS = ['grooves', 'bests', 'practice', 'playback', 'folds', 'open-levels', 'groove-sort', 'library-hidden', 'manual-lang'];
+  const backupStatus = $('#backup-status');
+  const isObject = (v) => v && typeof v === 'object' && !Array.isArray(v);
+  const count = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+
+  // The message takes a line of its own, with any buttons below it.
+  function backupSay(msg, ...actions) {
+    const text = document.createElement('span');
+    text.className = 'library__msg';
+    text.textContent = msg;
+    backupStatus.replaceChildren(text, ...actions);
+  }
+
+  $('#backup-save').addEventListener('click', () => {
+    savePractice();
+    const data = {};
+    for (const k of BACKUP_KEYS) {
+      const v = store.get(k, undefined);
+      if (v !== undefined) data[k] = v;
+    }
+    const file = { app: 'play-drums', kind: 'backup', version: 1, exported: new Date().toISOString(), data };
+    const url = URL.createObjectURL(new Blob([JSON.stringify(file, null, 2)], { type: 'application/json' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `play-drums-backup-${todayKey}.json`;
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    backupSay(`Saved ${a.download}: ${plural(grooves.length)}, ${count(Object.keys(bests).length, 'clean run', 'clean runs')}.`);
+  });
+
+  /* Each value from a backup is rebuilt from what this version understands; anything else is left out. */
+  function cleanBackup(data) {
+    const out = {};
+    if (Array.isArray(data.grooves)) {
+      const ids = new Set();
+      let n = 0;
+      out.grooves = data.grooves.map(cleanGroove).filter(Boolean).map((g) => {
+        if (!g.id || ids.has(g.id)) g.id = 'g' + Date.now().toString(36) + ids.size;
+        ids.add(g.id);
+        if (!g.name) g.name = 'Groove ' + ++n;
+        return g;
+      });
+    }
+    if (isObject(data.bests)) {
+      out.bests = {};
+      for (const [k, v] of Object.entries(data.bests)) {
+        if (/^[a-z0-9:-]{1,60}$/i.test(k) && isObject(v) && v.bpm >= BPM_MIN && v.bpm <= BPM_MAX && !Number.isNaN(Date.parse(v.date))) {
+          out.bests[k] = { bpm: Math.round(v.bpm), date: new Date(v.date).toISOString() };
+        }
+      }
+    }
+    if (isObject(data.practice)) {
+      out.practice = {};
+      for (const [k, v] of Object.entries(data.practice)) {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(k) && Number.isFinite(v) && v > 0) out.practice[k] = Math.min(v, 86400);
+      }
+    }
+    if (isObject(data.playback)) {
+      out.playback = {};
+      for (const kind of Object.keys(PLAYBACK)) {
+        const p = data.playback[kind];
+        if (!isObject(p)) continue;
+        out.playback[kind] = {};
+        for (const opt of Object.keys(PLAYBACK[kind])) if (typeof p[opt] === 'boolean') out.playback[kind][opt] = p[opt];
+      }
+    }
+    if (isObject(data.folds)) out.folds = Object.fromEntries(SECTIONS.filter((k) => data.folds[k] === true).map((k) => [k, true]));
+    if (isObject(data['open-levels'])) {
+      out['open-levels'] = Object.fromEntries(Object.keys(data['open-levels']).filter((k) => k.length <= 80 && data['open-levels'][k] === true).map((k) => [k, true]));
+    }
+    if (data['groove-sort'] in SORTS) out['groove-sort'] = data['groove-sort'];
+    if (typeof data['library-hidden'] === 'boolean') out['library-hidden'] = data['library-hidden'];
+    if (data['manual-lang'] === 'en' || data['manual-lang'] === 'es') out['manual-lang'] = data['manual-lang'];
+    return out;
+  }
+
+  function restoreBackup(text) {
+    let file;
+    try { file = JSON.parse(text); } catch { file = null; }
+    if (isObject(file) && file.app === 'play-drums' && !file.kind && Array.isArray(file.grooves)) {
+      backupSay('That is a grooves file, not a full backup. Use Import grooves under My grooves to add its grooves.');
+      return;
+    }
+    if (!isObject(file) || file.app !== 'play-drums' || file.kind !== 'backup' || !isObject(file.data)) {
+      backupSay('That file is not a Play Drums backup. Choose a file made with Back up everything.');
+      return;
+    }
+    const data = cleanBackup(file.data);
+    const g = (data.grooves || []).length;
+    const b = Object.keys(data.bests || {}).length;
+    const d = Object.keys(data.practice || {}).length;
+    const when = Number.isNaN(Date.parse(file.exported)) ? '' : ` from ${dateFmt.format(new Date(file.exported))}`;
+    const restore = document.createElement('button');
+    restore.type = 'button';
+    restore.textContent = 'Restore';
+    const cancel = document.createElement('button');
+    cancel.type = 'button';
+    cancel.textContent = 'Cancel';
+    backupSay(`Replace everything in this browser with the backup${when}: ${plural(g)}, ${count(b, 'clean run', 'clean runs')}, ${count(d, 'day', 'days')} of practice?`, restore, cancel);
+    restore.focus();
+    cancel.addEventListener('click', () => { backupSay('Nothing was changed.'); $('#backup-restore').focus(); });
+    restore.addEventListener('click', () => {
+      // Keep what is there now until the new values are all written, so a full storage cannot leave half a backup.
+      const before = Object.fromEntries(BACKUP_KEYS.map((k) => [k, localStorage.getItem('play-drums:' + k)]));
+      try {
+        for (const k of BACKUP_KEYS) localStorage.removeItem('play-drums:' + k);
+        for (const [k, v] of Object.entries(data)) localStorage.setItem('play-drums:' + k, JSON.stringify(v));
+      } catch {
+        for (const [k, v] of Object.entries(before)) {
+          try { if (v === null) localStorage.removeItem('play-drums:' + k); else localStorage.setItem('play-drums:' + k, v); } catch { /* best effort */ }
+        }
+        backupSay('The backup could not be restored because the browser’s storage is full. Nothing was changed.');
+        return;
+      }
+      // Stop counting practice time against the old data, then start again from the backup.
+      restoring = true;
+      if (state.playing) stop();
+      try { sessionStorage.setItem('play-drums:restored', `Backup restored: ${plural(g)}, ${count(b, 'clean run', 'clean runs')}.`); } catch { /* the message is a courtesy */ }
+      location.reload();
+    });
+  }
+
+  const backupFile = $('#backup-file');
+  $('#backup-restore').addEventListener('click', () => backupFile.click());
+  backupFile.addEventListener('change', () => {
+    const file = backupFile.files[0];
+    backupFile.value = '';
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { backupSay('That file is too large to be a Play Drums backup.'); return; }
+    file.text().then(restoreBackup, () => backupSay('That file could not be read. Try choosing it again.'));
+  });
+
+  try {
+    const restored = sessionStorage.getItem('play-drums:restored');
+    if (restored) { sessionStorage.removeItem('play-drums:restored'); backupSay(restored); }
+  } catch { /* storage unavailable */ }
 
   /* ---------- Header and readings ---------- */
   function renderHeader() {

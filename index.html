@@ -79,6 +79,19 @@
           </div>
         </section>
 
+        <section class="library__group" aria-labelledby="backup-h">
+          <h2 id="backup-h"><button class="fold" type="button" data-fold="backup" aria-expanded="true" aria-controls="backup-body"><span>Backup</span><svg class="icon fold__icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button></h2>
+          <div class="library__fold" id="backup-body">
+            <p class="library__note">One file with your grooves, clean runs, practice time and settings, to keep a copy or move them to another browser.</p>
+            <div class="library__actions">
+              <button class="btn" type="button" id="backup-save">Back up everything</button>
+              <button class="btn" type="button" id="backup-restore">Restore a backup</button>
+              <input class="visually-hidden" type="file" id="backup-file" accept=".json,application/json" tabindex="-1" aria-hidden="true">
+            </div>
+            <p class="library__status" id="backup-status" role="status"></p>
+          </div>
+        </section>
+
         <section class="library__group" aria-labelledby="keys-h">
           <h2 id="keys-h"><button class="fold" type="button" data-fold="keys" aria-expanded="true" aria-controls="keys-body"><span>Keys</span><svg class="icon fold__icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button></h2>
           <div class="library__fold" id="keys-body">
@@ -203,7 +216,7 @@
     <p class="about__lede">A practice room for drummers coming back to the kit. Follow an exercise on the score at your own tempo, then build your own grooves in the beat box.</p>
     <dl class="about__facts">
       <div><dt>Library</dt><dd id="about-library">Exercises in collections, easiest first</dd></div>
-      <div><dt>Your data</dt><dd>Grooves, clean runs and practice time stay in this browser. Export your grooves to keep a copy or move them.</dd></div>
+      <div><dt>Your data</dt><dd>Grooves, clean runs and practice time stay in this browser. Back up everything from the library to keep a copy or move it.</dd></div>
       <div><dt>Offline</dt><dd>Install it from the browser and it runs without a connection.</dd></div>
       <div><dt>Sounds</dt><dd>Virtuosity Drums by Versilian Studios, a kit recorded in Boston and released into the public domain.</dd></div>
       <div><dt>Made by</dt><dd class="about__credit">Daniel Calderón-Villegas + Claude</dd></div>
@@ -270,6 +283,7 @@
           <h3>Your grooves</h3>
           <p><strong>Save as a groove</strong> keeps the pads, time signature and tempo under <em>My grooves</em> in the library. Open a groove and press <strong>Rename</strong> beside its title to name it; the cross beside it in the list deletes it. Sort the list by newest, oldest, name or tempo.</p>
           <p>Grooves are stored in this browser only. <strong>Export grooves</strong> downloads them as a file to keep a copy or move them to another device; <strong>Import grooves</strong> adds the grooves from such a file and skips any you already have.</p>
+          <p><strong>Back up everything</strong>, under <em>Backup</em> in the library, saves one file with your grooves, clean runs, practice time and settings. <strong>Restore a backup</strong> replaces all of them in this browser with the ones in that file, after asking you first.</p>
         </section>
         <section>
           <h3>The library</h3>
@@ -341,6 +355,7 @@
           <h3>Tus ritmos</h3>
           <p><strong>Save as a groove</strong> guarda los pads, el compás y el tempo en <em>My grooves</em>, dentro de la biblioteca. Abre un ritmo y pulsa <strong>Rename</strong> junto a su título para ponerle nombre; la cruz a su lado en la lista lo borra. Ordena la lista por más nuevo, más antiguo, nombre o tempo.</p>
           <p>Los ritmos se guardan solo en este navegador. <strong>Export grooves</strong> los descarga en un archivo para tener una copia o pasarlos a otro dispositivo; <strong>Import grooves</strong> añade los ritmos de ese archivo y omite los que ya tienes.</p>
+          <p><strong>Back up everything</strong>, en <em>Backup</em> dentro de la biblioteca, guarda en un solo archivo tus ritmos, pasadas limpias, tiempo de práctica y ajustes. <strong>Restore a backup</strong> los reemplaza todos en este navegador por los de ese archivo, después de pedirte confirmación.</p>
         </section>
         <section>
           <h3>La biblioteca</h3>
