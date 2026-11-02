@@ -1549,6 +1549,7 @@
     else if (e.key === '-' || e.key === '_') setBpm(state.bpm - 1);
     else if (e.key === 't' || e.key === 'T') tap();
     else if (e.key === 'l' || e.key === 'L') setLibraryHidden(!root.classList.contains('library-off'));
+    else if (e.key === '?') { e.preventDefault(); openManual(); }
     else if (e.key === '/') {
       // The library may be hidden, or on a phone folded behind its toggle, so open it first.
       e.preventDefault();
@@ -1625,11 +1626,43 @@
   $('#about-library').textContent = `${exerciseCount} exercises in ${GROUPS.length} collections, each sorted from easiest to hardest. Your own grooves sit beside them.`;
   $('#about-open').addEventListener('click', () => about.showModal());
   // A click on the backdrop lands on the dialog itself, outside its content box.
-  about.addEventListener('click', (e) => {
-    if (e.target !== about) return;
-    const r = about.getBoundingClientRect();
-    if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) about.close();
-  });
+  function closeOnBackdrop(dialog) {
+    dialog.addEventListener('click', (e) => {
+      if (e.target !== dialog) return;
+      const r = dialog.getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dialog.close();
+    });
+  }
+  closeOnBackdrop(about);
+
+  /* ---------- User manual, in English or Spanish ---------- */
+  // The first visit follows the browser's language; after that, the reader's own choice.
+  const manual = $('#manual');
+  const MANUAL_CLOSE = { en: 'Close', es: 'Cerrar' };
+  function setManualLang(lang) {
+    manual.lang = lang;
+    for (const el of manual.querySelectorAll('[data-lang]')) el.hidden = el.dataset.lang !== lang;
+    $(`#manual-${lang}`).checked = true;
+    $('#manual-close').setAttribute('aria-label', MANUAL_CLOSE[lang]);
+  }
+  setManualLang(store.get('manual-lang', /^es\b/i.test(navigator.language || '') ? 'es' : 'en'));
+  for (const radio of manual.querySelectorAll('input[name="manual-lang"]')) {
+    radio.addEventListener('change', () => {
+      setManualLang(radio.value);
+      store.set('manual-lang', radio.value);
+      $('#manual-body').scrollTop = 0;
+    });
+  }
+  function openManual() {
+    if (manual.open) return;
+    const body = $('#manual-body');
+    body.scrollTop = 0;
+    manual.showModal();
+    // Focus the text, not the language switch, so Space and the arrows scroll it.
+    body.focus();
+  }
+  $('#manual-open').addEventListener('click', openManual);
+  closeOnBackdrop(manual);
 
   /* ---------- Installing the app ---------- */
   // The service worker keeps a copy of the app for offline use; it needs http(s), so file:// pages skip it.

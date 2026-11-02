@@ -33,6 +33,9 @@
         </ol>
       </nav>
       <p class="today"><span class="today__label">Practised today</span> <span class="measured" id="today">0:00</span></p>
+      <button class="btn btn--icon bar__icon" type="button" id="manual-open" aria-haspopup="dialog" aria-controls="manual" aria-label="User manual" title="User manual (?)">
+        <svg class="icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M6.25 6.4a1.8 1.8 0 1 1 2.5 1.65c-.5.22-.75.6-.75 1.1v.35"/><circle class="icon__dot" cx="8" cy="11.25" r="0.4"/></svg>
+      </button>
       <button class="btn btn--icon bar__icon" type="button" id="about-open" aria-haspopup="dialog" aria-controls="about" aria-label="About Play Drums" title="About Play Drums">
         <svg class="icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M8 7.25v3.75"/><circle class="icon__dot" cx="8" cy="5" r="0.4"/></svg>
       </button>
@@ -85,6 +88,7 @@
               <div><dt><kbd>T</kbd></dt><dd>Tap the tempo</dd></div>
               <div><dt><kbd>/</kbd></dt><dd>Search the library</dd></div>
               <div><dt><kbd>L</kbd></dt><dd>Show or hide the library</dd></div>
+              <div><dt><kbd>?</kbd></dt><dd>Open the user manual</dd></div>
               <div><dt>Arrows</dt><dd>Move between pads</dd></div>
             </dl>
             <p class="library__note">A pad cycles through hit, accent, ghost note and off.</p>
@@ -204,6 +208,161 @@
       <div><dt>Sounds</dt><dd>Virtuosity Drums by Versilian Studios, a kit recorded in Boston and released into the public domain.</dd></div>
       <div><dt>Made by</dt><dd class="about__credit">Daniel Calderón-Villegas + Claude</dd></div>
     </dl>
+  </dialog>
+
+  <dialog class="about manual" id="manual" aria-labelledby="manual-h">
+    <div class="about__head">
+      <h2 id="manual-h"><span data-lang="en" lang="en">User manual</span><span data-lang="es" lang="es" hidden>Manual de uso</span></h2>
+        <fieldset class="seg manual__lang">
+          <legend class="visually-hidden">Language, idioma</legend>
+          <input type="radio" name="manual-lang" id="manual-en" value="en" checked><label for="manual-en" lang="en">English</label>
+          <input type="radio" name="manual-lang" id="manual-es" value="es"><label for="manual-es" lang="es">Español</label>
+        </fieldset>
+        <form class="manual__close" method="dialog"><button class="btn btn--icon bar__icon" type="submit" id="manual-close" aria-label="Close">
+          <svg class="icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+        </button></form>
+    </div>
+
+    <div class="manual__body" id="manual-body" tabindex="0" aria-labelledby="manual-h">
+      <article class="manual__text" data-lang="en" lang="en">
+        <section>
+          <h3>Getting started</h3>
+          <ol>
+            <li>Pick an exercise in the library, on the left, or under <strong>Exercises and grooves</strong> on a phone. Each collection runs from easiest to hardest, grouped into levels; open a level to see its exercises.</li>
+            <li>Press <strong>Play</strong> or <kbd>Space</kbd>. One bar of clicks counts you in, then the groove plays and the playhead runs through the score and the pads together.</li>
+            <li>Play along on your kit or practice pad. Each exercise opens at an easy starting tempo, with its goal shown at the top right.</li>
+          </ol>
+        </section>
+        <section>
+          <h3>Tempo</h3>
+          <p>Drag the slider, press the <strong>&minus;</strong> and <strong>+</strong> buttons, or use the <kbd>&minus;</kbd> and <kbd>+</kbd> keys to change the tempo one beat per minute at a time, from 40 to 280. To set it by feel, press <strong>Tap tempo</strong> or <kbd>T</kbd> a few times in time.</p>
+          <p>Start slowly enough to play it cleanly, then raise the tempo a few beats at a time.</p>
+        </section>
+        <section>
+          <h3>Clean runs and practice time</h3>
+          <p>When you get through the exercise without a mistake, press <strong>Mark a clean run</strong>. Your fastest clean tempo is kept under <em>Your clean best</em> and shown beside the exercise in the library.</p>
+          <p><em>Practised today</em> in the top bar adds up the time the groove has been playing today.</p>
+        </section>
+        <section>
+          <h3>Click, count-in and groove sound</h3>
+          <ul>
+            <li><strong>Click</strong> is the metronome. The first beat of each bar is higher.</li>
+            <li><strong>Count-in</strong> plays one bar of clicks before the groove starts.</li>
+            <li><strong>Groove sound</strong> plays the drums. Turn it off to play the part yourself against the click while the score keeps moving.</li>
+          </ul>
+          <p>Exercises start with all three on; your own grooves start with the click and count-in off. Each keeps the settings you choose.</p>
+        </section>
+        <section>
+          <h3>Reading the score</h3>
+          <p>Cymbals sit at the top of the staff, the snare and toms in the middle and the kick at the bottom; the hi-hat foot is below the staff. An accent has a <strong>&gt;</strong> above it, a ghost note is in brackets, an open hi-hat has a small circle above it and a cross-stick is a circled cross. The key under the pads lists the marks in the current groove. For hand exercises, the sticking (R right, L left) is printed under the score.</p>
+        </section>
+        <section>
+          <h3>The beat box</h3>
+          <p>Each row is a drum and each pad is one step of the bar. Click a pad to cycle it through hit, accent, ghost note and off. With the keyboard, the arrow keys move between pads and <kbd>Space</kbd> or <kbd>Enter</kbd> changes one.</p>
+          <ul>
+            <li>Changing an exercise marks it <em>Edited in the beat box</em>. <strong>Back to the exercise</strong> puts the original back, and <strong>Clear</strong> empties every pad.</li>
+            <li>Choose the time signature: 4/4, 3/4, 6/8 or 5/4. In 6/8 the tempo counts the dotted quarter, two pulses a bar.</li>
+            <li>Choose the grid: <strong>Sixteenths</strong> or <strong>Triplets</strong>. Hits that still fit are kept when you change either.</li>
+          </ul>
+        </section>
+        <section>
+          <h3>Your grooves</h3>
+          <p><strong>Save as a groove</strong> keeps the pads, time signature and tempo under <em>My grooves</em> in the library. Open a groove and press <strong>Rename</strong> beside its title to name it; the cross beside it in the list deletes it. Sort the list by newest, oldest, name or tempo.</p>
+          <p>Grooves are stored in this browser only. <strong>Export grooves</strong> downloads them as a file to keep a copy or move them to another device; <strong>Import grooves</strong> adds the grooves from such a file and skips any you already have.</p>
+        </section>
+        <section>
+          <h3>The library</h3>
+          <p>Type in the search box, or press <kbd>/</kbd>, to find exercises and grooves by name, description or level; <kbd>Esc</kbd> clears the search. Click a level or <em>My grooves</em> to fold it away. The panel button at the top left, or <kbd>L</kbd>, hides the whole library to give the score more room.</p>
+        </section>
+        <section>
+          <h3>Install and use offline</h3>
+          <p>In Chrome or Edge, use <strong>Install Play Drums</strong> in the library, or the install icon in the address bar. In Safari on an iPhone or iPad, tap Share, then Add to Home Screen. Installed, it opens in its own window and works without a connection.</p>
+        </section>
+        <section>
+          <h3>Keys</h3>
+          <dl class="manual__keys">
+            <div><dt><kbd>Space</kbd></dt><dd>Play or stop</dd></div>
+            <div><dt><kbd>+</kbd> <kbd>&minus;</kbd></dt><dd>Tempo up or down by 1</dd></div>
+            <div><dt><kbd>T</kbd></dt><dd>Tap the tempo</dd></div>
+            <div><dt><kbd>/</kbd></dt><dd>Search the library</dd></div>
+            <div><dt><kbd>L</kbd></dt><dd>Show or hide the library</dd></div>
+            <div><dt><kbd>?</kbd></dt><dd>Open this manual</dd></div>
+            <div><dt>Arrows</dt><dd>Move between pads</dd></div>
+            <div><dt><kbd>Esc</kbd></dt><dd>Close this manual</dd></div>
+          </dl>
+        </section>
+      </article>
+
+      <article class="manual__text" data-lang="es" lang="es" hidden>
+        <p class="manual__note">La aplicación está en inglés, así que los botones aparecen aquí con el mismo nombre que verás en pantalla.</p>
+        <section>
+          <h3>Primeros pasos</h3>
+          <ol>
+            <li>Elige un ejercicio en la biblioteca, a la izquierda, o bajo <strong>Exercises and grooves</strong> en un teléfono. Cada colección va del más fácil al más difícil, agrupada en niveles; abre un nivel para ver sus ejercicios.</li>
+            <li>Pulsa <strong>Play</strong> o <kbd>Espacio</kbd>. Un compás de clics marca la entrada, luego suena el ritmo y el cursor recorre la partitura y los pads a la vez.</li>
+            <li>Toca encima en tu batería o en un pad de práctica. Cada ejercicio abre a un tempo cómodo para empezar, y su meta aparece arriba a la derecha.</li>
+          </ol>
+        </section>
+        <section>
+          <h3>Tempo</h3>
+          <p>Arrastra el control deslizante, pulsa los botones <strong>&minus;</strong> y <strong>+</strong>, o usa las teclas <kbd>&minus;</kbd> y <kbd>+</kbd> para cambiar el tempo de un pulso por minuto en uno, de 40 a 280. Para marcarlo a tu gusto, pulsa <strong>Tap tempo</strong> o <kbd>T</kbd> varias veces a tiempo.</p>
+          <p>Empieza lo bastante lento para tocarlo limpio y luego sube el tempo de pocos pulsos en pocos.</p>
+        </section>
+        <section>
+          <h3>Pasadas limpias y tiempo de práctica</h3>
+          <p>Cuando toques el ejercicio entero sin errores, pulsa <strong>Mark a clean run</strong>. Tu tempo limpio más rápido se guarda en <em>Your clean best</em> y aparece junto al ejercicio en la biblioteca.</p>
+          <p><em>Practised today</em>, en la barra superior, suma el tiempo que ha sonado el ritmo hoy.</p>
+        </section>
+        <section>
+          <h3>Clic, entrada y sonido del ritmo</h3>
+          <ul>
+            <li><strong>Click</strong> es el metrónomo. El primer pulso de cada compás suena más agudo.</li>
+            <li><strong>Count-in</strong> toca un compás de clics antes de que empiece el ritmo.</li>
+            <li><strong>Groove sound</strong> hace sonar la batería. Apágalo para tocar tú la parte contra el clic mientras la partitura sigue avanzando.</li>
+          </ul>
+          <p>Los ejercicios empiezan con los tres encendidos; tus propios ritmos empiezan con el clic y la entrada apagados. Cada tipo recuerda lo que elijas.</p>
+        </section>
+        <section>
+          <h3>Cómo leer la partitura</h3>
+          <p>Los platillos van arriba del pentagrama, la caja y los toms en el medio y el bombo abajo; el pedal del hi-hat va debajo del pentagrama. Un acento lleva un <strong>&gt;</strong> encima, una nota fantasma va entre paréntesis, el hi-hat abierto lleva un círculo pequeño encima y el cross-stick (golpe de aro) es una cruz dentro de un círculo. La leyenda bajo los pads explica las marcas del ritmo actual. En los ejercicios de manos, la digitación (R derecha, L izquierda) aparece bajo la partitura.</p>
+        </section>
+        <section>
+          <h3>La caja de ritmos</h3>
+          <p>Cada fila es un tambor o platillo y cada pad es un paso del compás. Haz clic en un pad para pasar por golpe, acento, nota fantasma y apagado. Con el teclado, las flechas mueven entre pads y <kbd>Espacio</kbd> o <kbd>Enter</kbd> lo cambian.</p>
+          <ul>
+            <li>Al cambiar un ejercicio aparece <em>Edited in the beat box</em>. <strong>Back to the exercise</strong> recupera el original y <strong>Clear</strong> vacía todos los pads.</li>
+            <li>Elige el compás: 4/4, 3/4, 6/8 o 5/4. En 6/8 el tempo cuenta la negra con puntillo, dos pulsos por compás.</li>
+            <li>Elige la subdivisión: <strong>Sixteenths</strong> (semicorcheas) o <strong>Triplets</strong> (tresillos). Al cambiar cualquiera de los dos se conservan los golpes que todavía caben.</li>
+          </ul>
+        </section>
+        <section>
+          <h3>Tus ritmos</h3>
+          <p><strong>Save as a groove</strong> guarda los pads, el compás y el tempo en <em>My grooves</em>, dentro de la biblioteca. Abre un ritmo y pulsa <strong>Rename</strong> junto a su título para ponerle nombre; la cruz a su lado en la lista lo borra. Ordena la lista por más nuevo, más antiguo, nombre o tempo.</p>
+          <p>Los ritmos se guardan solo en este navegador. <strong>Export grooves</strong> los descarga en un archivo para tener una copia o pasarlos a otro dispositivo; <strong>Import grooves</strong> añade los ritmos de ese archivo y omite los que ya tienes.</p>
+        </section>
+        <section>
+          <h3>La biblioteca</h3>
+          <p>Escribe en el buscador, o pulsa <kbd>/</kbd>, para encontrar ejercicios y ritmos por nombre, descripción o nivel; <kbd>Esc</kbd> borra la búsqueda. Haz clic en un nivel o en <em>My grooves</em> para plegarlo. El botón del panel arriba a la izquierda, o <kbd>L</kbd>, oculta toda la biblioteca para dar más espacio a la partitura.</p>
+        </section>
+        <section>
+          <h3>Instalar y usar sin conexión</h3>
+          <p>En Chrome o Edge, usa <strong>Install Play Drums</strong> en la biblioteca o el icono de instalar en la barra de direcciones. En Safari en un iPhone o iPad, toca Compartir y luego Añadir a pantalla de inicio. Instalada, se abre en su propia ventana y funciona sin conexión.</p>
+        </section>
+        <section>
+          <h3>Teclas</h3>
+          <dl class="manual__keys">
+            <div><dt><kbd>Espacio</kbd></dt><dd>Tocar o parar</dd></div>
+            <div><dt><kbd>+</kbd> <kbd>&minus;</kbd></dt><dd>Subir o bajar el tempo en 1</dd></div>
+            <div><dt><kbd>T</kbd></dt><dd>Marcar el tempo</dd></div>
+            <div><dt><kbd>/</kbd></dt><dd>Buscar en la biblioteca</dd></div>
+            <div><dt><kbd>L</kbd></dt><dd>Mostrar u ocultar la biblioteca</dd></div>
+            <div><dt><kbd>?</kbd></dt><dd>Abrir este manual</dd></div>
+            <div><dt>Flechas</dt><dd>Moverse entre pads</dd></div>
+            <div><dt><kbd>Esc</kbd></dt><dd>Cerrar este manual</dd></div>
+          </dl>
+        </section>
+      </article>
+    </div>
   </dialog>
 
   <script src="app.js"></script>
