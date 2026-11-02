@@ -1321,9 +1321,11 @@
     else if (e.key === '+' || e.key === '=') setBpm(state.bpm + 1);
     else if (e.key === '-' || e.key === '_') setBpm(state.bpm - 1);
     else if (e.key === 't' || e.key === 'T') tap();
+    else if (e.key === 'l' || e.key === 'L') setLibraryHidden(!root.classList.contains('library-off'));
     else if (e.key === '/') {
-      // On a phone the library is folded behind its toggle, so open it first.
+      // The library may be hidden, or on a phone folded behind its toggle, so open it first.
       e.preventDefault();
+      if (root.classList.contains('library-off')) setLibraryHidden(false);
       const lib = $('.library');
       if (!lib.classList.contains('is-open')) { lib.classList.add('is-open'); $('.library__toggle').setAttribute('aria-expanded', 'true'); }
       searchInput.focus();
@@ -1367,6 +1369,27 @@
 
   window.addEventListener('popstate', loadFromURL);
   window.addEventListener('pagehide', savePractice);
+
+  /* ---------- Showing and hiding the library ---------- */
+  const root = document.documentElement;
+  const panelToggle = $('#panel-toggle');
+
+  function renderPanel() {
+    const off = root.classList.contains('library-off');
+    panelToggle.setAttribute('aria-expanded', String(!off));
+    panelToggle.title = `${off ? 'Show' : 'Hide'} the library (L)`;
+  }
+
+  function setLibraryHidden(off) {
+    // Focus inside the library would be lost when it hides, so it moves to the button.
+    if (off && $('.library').contains(document.activeElement)) panelToggle.focus();
+    root.classList.toggle('library-off', off);
+    store.set('library-hidden', off);
+    renderPanel();
+  }
+
+  panelToggle.addEventListener('click', () => setLibraryHidden(!root.classList.contains('library-off')));
+  renderPanel();
 
   /* ---------- Installing the app ---------- */
   // The service worker keeps a copy of the app for offline use; it needs http(s), so file:// pages skip it.

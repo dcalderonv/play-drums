@@ -14,13 +14,16 @@
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <script>document.documentElement.classList.add('js');</script>
+  <script>document.documentElement.classList.add('js'); try { if (localStorage.getItem('play-drums:library-hidden') === 'true') document.documentElement.classList.add('library-off'); } catch (e) { /* storage unavailable */ }</script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to the score</a>
 
   <header class="bar">
     <div class="bar__inner">
+      <button class="btn btn--icon bar__panel" type="button" id="panel-toggle" aria-controls="library" aria-expanded="true" aria-label="Library" title="Hide the library (L)">
+        <svg class="icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M6.5 3v10"/><path class="bar__panel-fill" d="M2.75 3.75h3v8.5h-3z"/></svg>
+      </button>
       <a class="wordmark" href="./" aria-label="Play Drums, back to the first exercise">Play Drums</a>
       <nav class="crumbs" aria-label="Breadcrumb">
         <ol>
@@ -34,7 +37,7 @@
   </header>
 
   <div class="shell">
-    <nav class="library" aria-label="Exercises and grooves">
+    <nav class="library" id="library" aria-label="Exercises and grooves">
       <button class="btn library__toggle" type="button" aria-expanded="false" aria-controls="library-body">Exercises and grooves</button>
       <div class="library__body" id="library-body">
         <div class="search" role="search">
@@ -78,6 +81,7 @@
               <div><dt><kbd>+</kbd> <kbd>&minus;</kbd></dt><dd>Tempo up or down by 1</dd></div>
               <div><dt><kbd>T</kbd></dt><dd>Tap the tempo</dd></div>
               <div><dt><kbd>/</kbd></dt><dd>Search the library</dd></div>
+              <div><dt><kbd>L</kbd></dt><dd>Show or hide the library</dd></div>
               <div><dt>Arrows</dt><dd>Move between pads</dd></div>
             </dl>
             <p class="library__note">A pad cycles through hit, accent, ghost note and off.</p>

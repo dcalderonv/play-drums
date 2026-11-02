@@ -68,6 +68,16 @@ kbd {
   display: flex; align-items: center; gap: var(--space-lg);
   max-width: var(--container); height: var(--bar-height); margin-inline: auto; padding-inline: var(--space-lg);
 }
+/* The panel button: its left column is filled while the library shows */
+.bar__panel { width: 32px; min-height: 32px; margin-left: calc(-1 * var(--space-xs)); border-color: transparent; background: transparent; color: var(--color-ink-2); }
+.bar__panel:hover { background: var(--color-paper-2); color: var(--color-ink); }
+.bar__panel .icon { fill: none; }
+.bar__panel .bar__panel-fill { fill: currentColor; stroke: none; opacity: 0.55; }
+.library-off .bar__panel .bar__panel-fill { opacity: 0; }
+.bar__inner:has(.bar__panel) { gap: var(--space-sm); }
+.bar__panel + .wordmark { margin-right: var(--space-xs); }
+.library-off .library { display: none; }
+.library-off .shell { grid-template-columns: minmax(0, 1fr); }
 .wordmark { font-weight: 500; font-size: var(--text-md); letter-spacing: -0.01em; text-decoration: none; white-space: nowrap; }
 .wordmark:hover { color: var(--color-accent); }
 .crumbs { min-width: 0; }
