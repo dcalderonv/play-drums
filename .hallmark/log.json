@@ -1,0 +1,28 @@
+[
+ {
+  "scope": "app",
+  "shape": "app screen",
+  "theme": "console",
+  "axes": "dark/grotesk-sans/chromatic-amber",
+  "hero": "none",
+  "nav": "top bar with breadcrumb, side library",
+  "footer": "none",
+  "imagery": "product built: score and step sequencer",
+  "photos": [],
+  "entry": "practice screen",
+  "fingerprint": "app/desk/score-over-pads/library-left/transport-top/dark",
+  "sections": [
+   "library",
+   "exercise header",
+   "transport",
+   "score",
+   "beat box",
+   "desk foot"
+  ],
+  "signature": "score and beat box on one time axis with one playhead",
+  "waived": [],
+  "prompt": "practice screen for a drum learning web app, DAW look, adults returning to drums",
+  "date": "2026-11-01",
+  "mode": "build"
+ }
+]

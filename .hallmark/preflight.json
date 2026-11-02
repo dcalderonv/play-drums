@@ -1,0 +1,1 @@
+{ "scanned": "2026-11-01", "findings": { "fonts": "none", "palette": "none", "motion": "none", "spacing": "none", "framework": "none (empty folder)" }, "preserve": [], "introduce": ["theme: Console (DAW look by request)", "tokens.css", "base.css", "gates", "app-screen states"] }

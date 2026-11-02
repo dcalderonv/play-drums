@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Practice: basic rock beat, Play Drums</title>
+  <meta name="description" content="Follow a drum exercise on the score at your own tempo, then build and save your own grooves in the beat box.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to the score</a>
+
+  <header class="bar">
+    <div class="bar__inner">
+      <a class="wordmark" href="./" aria-label="Play Drums, back to the first exercise">Play Drums</a>
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <ol>
+          <li id="crumb-collection">Rock and pop</li>
+          <li id="crumb-unit">Level 1, first strokes</li>
+          <li aria-current="page" id="crumb-item">Basic rock beat</li>
+        </ol>
+      </nav>
+      <p class="today"><span class="today__label">Practised today</span> <span class="measured" id="today">0:00</span></p>
+    </div>
+  </header>
+
+  <div class="shell">
+    <nav class="library" aria-label="Exercises and grooves">
+      <button class="btn library__toggle" type="button" aria-expanded="false" aria-controls="library-body">Exercises and grooves</button>
+      <div class="library__body" id="library-body">
+        <div id="units"></div>
+
+        <section class="library__group" aria-labelledby="grooves-h">
+          <h2 id="grooves-h">My grooves</h2>
+          <ul class="ex-list" id="grooves"></ul>
+          <p class="library__empty" id="grooves-empty">No saved grooves yet. Build one in the beat box and press Save as a groove, or import a groove file.</p>
+          <div class="library__actions">
+            <button class="btn" type="button" id="grooves-export">Export grooves</button>
+            <button class="btn" type="button" id="grooves-import">Import grooves</button>
+            <input class="visually-hidden" type="file" id="grooves-file" accept=".json,application/json" tabindex="-1" aria-hidden="true">
+          </div>
+          <p class="library__status" id="grooves-status" role="status"></p>
+        </section>
+
+        <section class="library__group" aria-labelledby="keys-h">
+          <h2 id="keys-h">Keys</h2>
+          <dl class="keys">
+            <div><dt><kbd>Space</kbd></dt><dd>Play or stop</dd></div>
+            <div><dt><kbd>+</kbd> <kbd>&minus;</kbd></dt><dd>Tempo up or down by 1</dd></div>
+            <div><dt><kbd>T</kbd></dt><dd>Tap the tempo</dd></div>
+            <div><dt>Arrows</dt><dd>Move between pads</dd></div>
+          </dl>
+          <p class="library__note">A pad cycles through hit, accent, ghost note and off.</p>
+        </section>
+      </div>
+    </nav>
+
+    <main class="practice" id="main">
+      <header class="exercise">
+        <div class="exercise__text">
+          <div class="exercise__title">
+            <h1 id="ex-title">Basic rock beat</h1>
+            <span class="chip chip--person" id="ex-edited" hidden>Edited in the beat box</span>
+          </div>
+          <p class="exercise__focus" id="ex-focus">Hi-hat on every eighth note, snare on 2 and 4, kick on 1 and 3.</p>
+        </div>
+        <dl class="readings">
+          <div><dt id="ex-goal-label">Goal</dt><dd class="measured" id="ex-goal">100 BPM</dd></div>
+          <div><dt>Your clean best</dt><dd id="ex-best">None yet</dd></div>
+        </dl>
+        <button class="btn" type="button" id="mark-clean">Mark a clean run at 80 BPM</button>
+      </header>
+
+      <div class="desk">
+        <section class="transport" aria-label="Transport">
+          <button class="btn btn--primary transport__play" type="button" id="play">
+            <svg class="icon" id="play-icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z"/></svg>
+            <span id="play-label">Play</span>
+          </button>
+
+          <div class="tempo" role="group" aria-label="Tempo">
+            <button class="btn btn--icon" type="button" id="tempo-down" aria-label="Slower by 1 BPM">
+              <svg class="icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h10"/></svg>
+            </button>
+            <p class="tempo__reading"><output class="measured" id="bpm-out" for="bpm">80</output> <span class="tempo__unit">BPM</span></p>
+            <button class="btn btn--icon" type="button" id="tempo-up" aria-label="Faster by 1 BPM">
+              <svg class="icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h10M8 3v10"/></svg>
+            </button>
+            <input class="tempo__slider" type="range" id="bpm" name="bpm" min="40" max="280" step="1" value="80" aria-label="Tempo in beats per minute">
+            <button class="btn" type="button" id="tap">Tap tempo</button>
+          </div>
+
+          <div class="toggles" role="group" aria-label="Playback">
+            <button class="toggle" type="button" id="opt-click" aria-pressed="true">Click</button>
+            <button class="toggle" type="button" id="opt-countin" aria-pressed="true">Count-in</button>
+            <button class="toggle" type="button" id="opt-groove" aria-pressed="true">Groove sound</button>
+          </div>
+
+          <p class="transport__position measured" id="position" aria-hidden="true">Bar 1, beat 1</p>
+          <p class="transport__status" id="audio-status" role="status"></p>
+        </section>
+
+        <div class="lanes-scroll">
+          <div class="lanes" id="lanes">
+            <svg class="score" id="score" role="img" aria-labelledby="score-title"><title id="score-title">Drum score, two bars in 4/4</title></svg>
+            <div class="seq" id="seq" role="group" aria-label="Beat box pads, two bars of sixteenth notes">
+              <noscript><p class="seq__noscript">The score, the beat box and the sound need JavaScript turned on.</p></noscript>
+            </div>
+            <div class="playhead" id="playhead" aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <footer class="desk__foot">
+          <div class="key" id="key" aria-label="Key to the noteheads"></div>
+          <div class="desk__actions">
+            <fieldset class="seg">
+              <legend class="visually-hidden">Time signature</legend>
+              <input type="radio" name="meter" id="meter-44" value="4/4" checked><label for="meter-44">4/4</label>
+              <input type="radio" name="meter" id="meter-34" value="3/4"><label for="meter-34">3/4</label>
+              <input type="radio" name="meter" id="meter-68" value="6/8"><label for="meter-68">6/8</label>
+            </fieldset>
+            <fieldset class="seg" id="feel">
+              <legend class="visually-hidden">Grid</legend>
+              <input type="radio" name="feel" id="feel-4" value="4" checked><label for="feel-4">Sixteenths</label>
+              <input type="radio" name="feel" id="feel-3" value="3"><label for="feel-3">Triplets</label>
+            </fieldset>
+            <button class="btn" type="button" id="bb-reset" disabled>Back to the exercise</button>
+            <button class="btn" type="button" id="bb-clear">Clear</button>
+            <button class="btn" type="button" id="bb-save">Save as a groove</button>
+          </div>
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
