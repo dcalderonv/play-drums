@@ -76,10 +76,18 @@
     <main class="practice" id="main">
       <header class="exercise">
         <div class="exercise__text">
-          <div class="exercise__title">
+          <div class="exercise__title" id="title-row">
             <h1 id="ex-title">Basic rock beat</h1>
             <span class="chip chip--person" id="ex-edited" hidden>Edited in the beat box</span>
+            <button class="btn" type="button" id="rename" hidden>Rename</button>
           </div>
+          <form class="rename" id="rename-form" hidden novalidate>
+            <label class="visually-hidden" for="rename-input">Groove name</label>
+            <input class="rename__input" id="rename-input" name="name" type="text" maxlength="60" autocomplete="off" spellcheck="false" aria-describedby="rename-error">
+            <button class="btn" type="submit">Save name</button>
+            <button class="btn" type="button" id="rename-cancel">Cancel</button>
+            <p class="rename__error" id="rename-error" aria-live="polite"></p>
+          </form>
           <p class="exercise__focus" id="ex-focus">Hi-hat on every eighth note, snare on 2 and 4, kick on 1 and 3.</p>
         </div>
         <dl class="readings">

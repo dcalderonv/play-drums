@@ -1031,10 +1031,72 @@
     $('#crumb-item').textContent = isEx ? it.title : it.name;
     $('#ex-goal-label').textContent = isEx ? 'Goal' : 'Saved at';
     $('#ex-goal').textContent = `${isEx ? it.goal : it.bpm} BPM`;
-    document.title = `Practice: ${(isEx ? it.title : it.name).toLowerCase()}, Play Drums`;
+    document.title = `Practice: ${isEx ? it.title.toLowerCase() : it.name}, Play Drums`;
+    const rename = $('#rename');
+    rename.hidden = isEx;
+    if (!isEx) rename.setAttribute('aria-label', `Rename ${it.name}`);
+    closeRename(false);
     renderBest();
     renderEdited();
   }
+
+  /* ---------- Renaming a saved groove ---------- */
+  const renameForm = $('#rename-form');
+  const renameInput = $('#rename-input');
+  const renameError = $('#rename-error');
+
+  function openRename() {
+    if (state.kind !== 'groove') return;
+    renameInput.value = state.item.name;
+    $('#title-row').hidden = true;
+    renameForm.hidden = false;
+    renameInput.focus();
+    renameInput.select();
+  }
+
+  function closeRename(focusBack) {
+    if (renameForm.hidden) return;
+    renameForm.hidden = true;
+    $('#title-row').hidden = false;
+    renameError.textContent = '';
+    renameInput.removeAttribute('aria-invalid');
+    if (focusBack) $('#rename').focus();
+  }
+
+  function renameProblem(name) {
+    if (!name) return 'Give the groove a name.';
+    const clash = grooves.find((g) => g !== state.item && g.name.toLowerCase() === name.toLowerCase());
+    return clash ? `You already have a groove called ${clash.name}.` : '';
+  }
+
+  $('#rename').addEventListener('click', openRename);
+  $('#rename-cancel').addEventListener('click', () => closeRename(true));
+  renameInput.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.preventDefault(); closeRename(true); } });
+  renameInput.addEventListener('input', () => {
+    if (!renameInput.hasAttribute('aria-invalid')) return;
+    renameError.textContent = '';
+    renameInput.removeAttribute('aria-invalid');
+  });
+
+  renameForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = renameInput.value.replace(/\s+/g, ' ').trim().slice(0, 60);
+    const problem = renameProblem(name);
+    if (problem) {
+      renameError.textContent = problem;
+      renameInput.setAttribute('aria-invalid', 'true');
+      renameInput.focus();
+      return;
+    }
+    if (name !== state.item.name) {
+      state.item.name = name;
+      store.set('grooves', grooves);
+      renderLibrary();
+    }
+    closeRename(false);
+    renderHeader();
+    $('#rename').focus();
+  });
 
   function renderBest() {
     const best = bests[itemKey()];
