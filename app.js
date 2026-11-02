@@ -23,6 +23,7 @@
     '4/4': { beats: 4, top: 4, bottom: 4 },
     '3/4': { beats: 3, top: 3, bottom: 4 },
     '6/8': { beats: 2, top: 6, bottom: 8, compound: true },
+    '5/4': { beats: 5, top: 5, bottom: 4 },
   };
   /* Old saved grooves only stored a grid of 16 or 12 steps a bar, always in 4/4. */
   const shapeOf = (it) => {
@@ -74,10 +75,35 @@
   // 6/8 is written in eighths, six a bar. The bell pattern runs across both bars.
   const BELL = 'x-x-xx' + '-x-x-x';
 
+  // Patterns may be spaced by beat for reading; the spaces are ignored.
+  // The first bar of a fill exercise: crash on 1, then the basic beat.
+  const CRASH_LOOP = 'x' + '-'.repeat(31);
+  const HAT_IN = '--x- x-x- x-x- x-x-';
+  const SN = '---- x--- ---- x---';
+  const KK = 'x--- ---- x--- ----';
+  // The same in a triplet grid: crash on 1, swung hi-hat, backbeat, kick on 1 and 3.
+  const CRASH_LOOP3 = 'x' + '-'.repeat(23);
+  const HAT_IN3 = '--x x-x x-x x-x';
+  const SN3 = '--- X-- --- X--';
+  const KK3 = 'x-- --- x-- ---';
+  const QUARTERS = twice('x--- x--- x--- x---');
+  const OFFBEATS = twice('--x- --x- --x- --x-');
+  // Clave over two bars of 4/4, and the bass tumbao on the and of 2 and on 4.
+  const SON32 = 'x--- --x- ---- x---' + '---- x--- x--- ----';
+  const SON23 = '---- x--- x--- ----' + 'x--- --x- ---- x---';
+  const RUMBA32 = 'x--- --x- ---- --x-' + '---- x--- x--- ----';
+  const TUMBAO = twice('---- --x- ---- x---');
+  const ALT16 = twice('RLRL RLRL RLRL RLRL');
+  const ALT12 = twice('RLR LRL RLR LRL');
+
   const COLLECTIONS = [
     { id: 'foundations', tab: 'Rock', title: 'Rock and pop', levels: ['First strokes', 'Building blocks', 'Around the kit', 'Stretch'] },
+    { id: 'rudiments', tab: 'Rudiments', title: 'Rudiments and hands', levels: ['Strokes', 'Paradiddles', 'Rolls and triplets', 'Accent studies'] },
+    { id: 'fills', tab: 'Fills', title: 'Fills and phrases', levels: ['Short fills', 'One-beat and two-beat', 'Triplets and kicks', 'Full-bar fills'] },
+    { id: 'funk', tab: 'Funk', title: 'Funk, soul and hip-hop', levels: ['Sixteenth feel', 'Ghost notes', 'Syncopation', 'Stretch'] },
     { id: 'swing', tab: 'Jazz', title: 'Swing, jazz and comping', levels: ['Time feel', 'First comping', 'Independence', 'Stretch'] },
-    { id: 'threes', tab: '3/4 and 6/8', title: 'Grooves in 3/4 and 6/8', levels: ['Counting in three', 'Grooves in three', 'Jazz waltz', 'Afro-Cuban 6/8'] },
+    { id: 'latin', tab: 'Latin', title: 'Latin and Caribbean', levels: ['Clave and pulse', 'Reggae', 'Clave independence', 'Stretch'] },
+    { id: 'threes', tab: 'Time signatures', title: 'Grooves in 3/4, 6/8 and 5/4', levels: ['Counting in three', 'Grooves in three', 'Jazz waltz', 'Afro-Cuban 6/8', 'Five'] },
   ];
 
   /* Written easiest first: by collection and level, and within a level in the order to learn them. */
@@ -163,6 +189,132 @@
     { collection: 'threes', meter: '6/8', level: 4, kind: 'Groove', id: 'six-eight-bell', title: 'The 6/8 bell', goal: 110, start: 50, focus: 'The Afro-Cuban bell on the ride, seven strokes across two bars, over a kick on every dotted quarter.', parts: { ride: BELL, kick: twice('x--x--') } },
     { collection: 'threes', meter: '6/8', level: 4, kind: 'Groove', id: 'afro-cuban', title: 'Afro-Cuban 6/8', goal: 110, start: 50, focus: 'Bell on the ride, kick on 1, cross-stick and hi-hat foot together on 4, answering the bell.', parts: { ride: BELL, crossstick: twice('---x--'), kick: twice('x-----'), hatfoot: twice('---x--') } },
     { collection: 'threes', meter: '6/8', level: 4, kind: 'Groove', id: 'afro-cuban-toms', title: 'Afro-Cuban 6/8 with the toms', goal: 100, start: 50, focus: 'Keep the bell and the feet, and let the left hand travel: cross-stick on 4, high tom on 6, floor tom to close the phrase.', parts: { ride: BELL, crossstick: twice('---x--'), hightom: '-----x' + '------', floortom: '------' + '----xx', kick: twice('x-----'), hatfoot: twice('---x--') } },
+
+    // Rock and pop, added
+    { level: 1, kind: 'Groove', id: 'rock-four-kick', title: 'Kick on every beat', goal: 110, start: 70, focus: 'The basic beat with the kick on all four beats, landing with the snare on 2 and 4.', parts: { hihat: EIGHTH_HATS, snare: BACKBEAT, kick: QUARTERS } },
+    { level: 2, kind: 'Groove', id: 'floor-tom-beat', title: 'Floor tom groove', goal: 110, start: 70, focus: 'The right hand moves from the hi-hat to the floor tom: eighths on the tom, snare on 2 and 4, kick on 1 and 3.', parts: { floortom: EIGHTH_HATS, snare: BACKBEAT, kick: twice(KK) } },
+    { level: 2, kind: 'Groove', id: 'skank-beat', title: 'Skank beat', goal: 180, start: 110, focus: 'Fast punk time: kick on every beat, snare on every and, the hi-hat on both.', parts: { hihat: EIGHTH_HATS, snare: OFFBEATS, kick: QUARTERS } },
+    { level: 3, kind: 'Groove', id: 'train-beat', title: 'Train beat', goal: 140, start: 80, focus: 'Country time on the snare: soft sixteenths hand to hand, accents on 2 and 4, kick on 1 and 3.', sticking: ALT16, parts: { snare: twice('gggg Xggg gggg Xggg'), kick: twice(KK) } },
+    { level: 3, kind: 'Groove', id: 'kick-and-a', title: 'Kick on the and-a of 2', goal: 100, start: 60, focus: 'Two quick kicks after the snare on 2, then one more on the and of 3.', parts: { hihat: EIGHTH_HATS, snare: BACKBEAT, kick: twice('x--- --xx --x- ----') } },
+    { level: 4, kind: 'Groove', id: 'half-time-sixteenths', title: 'Half-time with sixteenth hats', goal: 90, start: 60, focus: 'Hi-hat sixteenths hand to hand; the right hand leaves the hat for one big snare on 3.', sticking: ALT16, parts: { hihat: twice('xxxx xxxx -xxx xxxx'), snare: twice('---- ---- X--- ----'), kick: twice('x--- --x- ---- -x--') } },
+
+    // Swing and jazz, added
+    { collection: 'swing', sub: 3, level: 1, kind: 'Groove', id: 'swing-hat', title: 'Swing on the hi-hat', goal: 180, start: 100, focus: 'The ride pattern on the closed hi-hat, the foot still closing it on 2 and 4.', parts: { hihat: twice(RIDE), hatfoot: twice(FOOT) } },
+    { collection: 'swing', sub: 3, level: 2, kind: 'Comping', id: 'comp-two-four', title: 'Comping on 2 and 4', goal: 180, start: 100, focus: 'The snare lines up with the hi-hat foot on 2 and 4, the backbeat of swing.', parts: { ride: twice(RIDE), snare: twice('--- x-- --- x--'), hatfoot: twice(FOOT) } },
+    { collection: 'swing', sub: 3, level: 2, kind: 'Comping', id: 'comp-skip-two', title: 'The skip note of 2', goal: 180, start: 100, focus: 'One snare note on the skip note before 3, played together with the ride.', parts: { ride: twice(RIDE), snare: twice('--- --x --- ---'), hatfoot: twice(FOOT) } },
+    { collection: 'swing', sub: 3, level: 3, kind: 'Comping', id: 'bomb', title: 'Dropping a bomb', goal: 170, start: 90, focus: 'A snare note on 3, then an accented kick on the skip note of 4: a bomb that sets up the next phrase.', parts: { ride: twice(RIDE), snare: twice('--- --- x-- ---'), kick: twice('--- --- --- --X'), hatfoot: twice(FOOT) } },
+    { collection: 'swing', sub: 3, level: 3, kind: 'Comping', id: 'comping-phrase', title: 'Two-bar comping phrase', goal: 160, start: 90, focus: 'A longer sentence for the left hand, mixing the middle of the triplet with the skip notes.', parts: { ride: twice(RIDE), snare: '-x- -x- --- -x-' + '--x --x -x- ---', hatfoot: twice(FOOT) } },
+    { collection: 'swing', sub: 3, level: 4, kind: 'Groove', id: 'ride-variations', title: 'Varying the ride', goal: 180, start: 100, focus: 'In the second bar the skip notes move and multiply while the foot stays on 2 and 4.', parts: { ride: RIDE + 'x-x X-- x-x X-x', hatfoot: twice(FOOT) } },
+    { collection: 'swing', sub: 3, level: 4, kind: 'Fill', id: 'trading-twos', title: 'Trading twos', goal: 160, start: 80, focus: 'One bar of time, one bar of triplets around the kit, and the hi-hat foot never stops.', sticking: '-'.repeat(12) + 'RLR LRL RLR LRL', parts: { ride: RIDE + '-'.repeat(12), snare: '-'.repeat(12) + 'Xxx --- Xxx ---', hightom: '-'.repeat(12) + '--- xxx --- ---', floortom: '-'.repeat(12) + '--- --- --- xxx', kick: 'g-- g-- g-- g--' + '-'.repeat(12), hatfoot: twice(FOOT) } },
+
+    // 3/4 and 6/8, added
+    { collection: 'threes', meter: '6/8', level: 2, kind: 'Groove', id: 'six-eight-ghosts', title: '6/8 with ghost notes', goal: 80, start: 45, focus: 'The ballad with soft snare notes on 2 and 6 around the backbeat on 4.', parts: { hihat: twice('xxx xxx'), snare: twice('-g- X-g'), kick: twice('x-x ---') } },
+    { collection: 'threes', meter: '3/4', level: 2, kind: 'Groove', id: 'waltz-sixteenths', title: '3/4 with sixteenth hats', goal: 100, start: 60, focus: 'Hi-hat sixteenths hand to hand; the right hand leaves the hat for the snare on 2 and 3.', sticking: twice('RLRL RLRL RLRL'), parts: { hihat: twice('xxxx -xxx -xxx'), snare: twice('---- x--- x---'), kick: twice('x--- --x- ----') } },
+
+    // 5/4: five beats a bar
+    { collection: 'threes', meter: '5/4', level: 5, kind: 'Rudiment', id: 'five-quarters', title: 'Quarter notes in 5/4', goal: 120, start: 70, focus: 'Five strokes a bar, hand to hand, the accent on 1. Five is odd, so the second bar starts on the left.', sticking: 'R--- L--- R--- L--- R---' + 'L--- R--- L--- R--- L---', parts: { snare: twice('X--- x--- x--- x--- x---') } },
+    { collection: 'threes', meter: '5/4', level: 5, kind: 'Groove', id: 'five-rock', title: 'Rock beat in 5/4', goal: 110, start: 70, focus: 'Hear the bar as three beats and two: kick on 1 and 4, snare on 2 and 5, eighths on the hi-hat.', parts: { hihat: twice('x-x- x-x- x-x- x-x- x-x-'), snare: twice('---- x--- ---- ---- x---'), kick: twice('x--- ---- ---- x--- ----') } },
+    { collection: 'threes', meter: '5/4', sub: 3, level: 5, kind: 'Groove', id: 'five-swing', title: 'Swing in 5/4', goal: 170, start: 100, focus: 'The ride pattern stretched over five beats, the hi-hat foot on 2 and 4 and a soft kick on 1.', parts: { ride: twice('x-- x-x x-- x-x x--'), hatfoot: twice('--- x-- --- x-- ---'), kick: twice('g-- --- --- --- ---') } },
+    { collection: 'threes', meter: '5/4', level: 5, kind: 'Fill', id: 'five-fill', title: 'Fill in 5/4', goal: 100, start: 60, focus: 'A bar of the 5/4 rock beat, then a fill on beat 5: two sixteenths on the snare, two on the floor tom.', sticking: '-'.repeat(36) + 'RLRL', parts: { crash: 'x' + '-'.repeat(39), hihat: '--x- x-x- x-x- x-x- x-x-' + 'x-x- x-x- x-x- x-x- ----', snare: '---- x--- ---- ---- x---' + '---- x--- ---- ---- xx--', floortom: '-'.repeat(20) + '---- ---- ---- ---- --xx', kick: twice('x--- ---- ---- x--- ----') } },
+
+    // Rudiments, level 1: strokes
+    { collection: 'rudiments', level: 1, kind: 'Rudiment', id: 'single-four', title: 'Single stroke four', goal: 120, start: 70, focus: 'Four notes hand to hand, the last accented, then a beat of rest. The next four start on the other hand.', sticking: twice('RLRL ---- LRLR ----'), parts: { snare: twice('xxxX ---- xxxX ----') } },
+    { collection: 'rudiments', level: 1, kind: 'Rudiment', id: 'gallop', title: 'One, and-a', goal: 120, start: 70, focus: 'An eighth and two sixteenths on every beat. Keep the sixteenths running in your head so the right hand always leads.', sticking: twice('R-RL R-RL R-RL R-RL'), parts: { snare: twice('x-xx x-xx x-xx x-xx') } },
+    { collection: 'rudiments', level: 1, kind: 'Rudiment', id: 'reverse-gallop', title: 'One-e, a', goal: 120, start: 70, focus: 'Two sixteenths and a lone a on every beat. The a belongs to the left hand.', sticking: twice('RL-L RL-L RL-L RL-L'), parts: { snare: twice('xx-x xx-x xx-x xx-x') } },
+    { collection: 'rudiments', level: 1, kind: 'Rudiment', id: 'accent-e', title: 'Accent on the e', goal: 120, start: 60, focus: 'Even sixteenths with the accent on the second note of each beat, always the left hand. Keep the other notes low.', sticking: ALT16, parts: { snare: twice('xXxx xXxx xXxx xXxx') } },
+    { collection: 'rudiments', level: 1, kind: 'Rudiment', id: 'changing-gears', title: 'Eighths to sixteenths', goal: 110, start: 60, focus: 'A bar of eighths, then a bar of sixteenths at the same tempo. The click stays put; your hands double up.', sticking: 'R-L- R-L- R-L- R-L-' + 'RLRL RLRL RLRL RLRL', parts: { snare: 'x-x- x-x- x-x- x-x-' + 'xxxx xxxx xxxx xxxx' } },
+
+    // Rudiments, level 2: paradiddles
+    { collection: 'rudiments', level: 2, kind: 'Rudiment', id: 'inverted-paradiddle', title: 'Inverted paradiddle', goal: 100, start: 60, focus: 'The double moves to the middle: R L L R, L R R L. Accent the first note of each group.', sticking: twice('RLLR LRRL RLLR LRRL'), parts: { snare: twice('Xxxx Xxxx Xxxx Xxxx') } },
+    { collection: 'rudiments', level: 2, kind: 'Rudiment', id: 'reverse-paradiddle', title: 'Reverse paradiddle', goal: 100, start: 60, focus: 'The double comes first: R R L R, L L R L. Keep the second note of each double as strong as the first.', sticking: twice('RRLR LLRL RRLR LLRL'), parts: { snare: twice('Xxxx Xxxx Xxxx Xxxx') } },
+    { collection: 'rudiments', level: 2, kind: 'Rudiment', id: 'double-paradiddle', title: 'Double paradiddle', goal: 100, start: 60, focus: 'Six notes a group in triplets: R L R L R R, then the same from the left. Each group fills two beats.', sub: 3, sticking: twice('RLR LRR LRL RLL'), parts: { snare: twice('Xxx xxx Xxx xxx') } },
+    { collection: 'rudiments', level: 2, kind: 'Rudiment', id: 'triple-paradiddle', title: 'Triple paradiddle', goal: 100, start: 60, focus: 'Eight notes a group: three alternating pairs, then the double. Each group takes two beats.', sticking: twice('RLRL RLRR LRLR LRLL'), parts: { snare: twice('Xxxx xxxx Xxxx xxxx') } },
+    { collection: 'rudiments', level: 2, kind: 'Rudiment', id: 'paradiddle-diddle', title: 'Paradiddle-diddle', goal: 100, start: 60, focus: 'R L R R L L in triplets, always starting on the right. A favourite for moving around the toms.', sub: 3, sticking: twice('RLR RLL RLR RLL'), parts: { snare: twice('Xxx xxx Xxx xxx') } },
+
+    // Rudiments, level 3: rolls and triplets, the rolls played open in sixteenths
+    { collection: 'rudiments', level: 3, kind: 'Rudiment', id: 'five-stroke-roll', title: 'Five-stroke roll', goal: 110, start: 60, focus: 'Two doubles and an accented single, R R L L R, played open in sixteenths. Then the same from the left.', sticking: twice('RRLL R--- LLRR L---'), parts: { snare: twice('xxxx X--- xxxx X---') } },
+    { collection: 'rudiments', level: 3, kind: 'Rudiment', id: 'seven-stroke-roll', title: 'Seven-stroke roll', goal: 110, start: 60, focus: 'Three doubles and an accented single, R R L L R R L, played open in sixteenths.', sticking: twice('RRLL RRL- LLRR LLR-'), parts: { snare: twice('xxxx xxX- xxxx xxX-') } },
+    { collection: 'rudiments', level: 3, kind: 'Rudiment', id: 'nine-stroke-roll', title: 'Nine-stroke roll', goal: 110, start: 60, focus: 'Four doubles and an accented single, then a rest to reset. The second bar starts on the left.', sticking: 'RRLL RRLL R--- ----' + 'LLRR LLRR L--- ----', parts: { snare: twice('xxxx xxxx X--- ----') } },
+    { collection: 'rudiments', level: 3, kind: 'Rudiment', id: 'triple-strokes', title: 'Triple strokes', goal: 100, start: 60, focus: 'Three strokes a hand in triplets. The accent falls on each new hand, so it changes hands every beat.', sub: 3, sticking: twice('RRR LLL RRR LLL'), parts: { snare: twice('Xxx Xxx Xxx Xxx') } },
+    { collection: 'rudiments', level: 3, kind: 'Rudiment', id: 'triplet-doubles', title: 'Doubles in triplets', goal: 100, start: 60, focus: 'Double strokes on a triplet grid. Pairs against threes means the beat falls on R, L, L, R before the pattern comes round.', sub: 3, sticking: twice('RRL LRR LLR RLL'), parts: { snare: twice('Xxx Xxx Xxx Xxx') } },
+    { collection: 'rudiments', level: 3, kind: 'Rudiment', id: 'single-stroke-seven', title: 'Single stroke seven', goal: 110, start: 60, focus: 'Six triplets hand to hand into an accent on 3, then rest. The second bar starts on the left.', sub: 3, sticking: 'RLR LRL R-- ---' + 'LRL RLR L-- ---', parts: { snare: twice('xxx xxx X-- ---') } },
+
+    // Rudiments, level 4: accent studies
+    { collection: 'rudiments', level: 4, kind: 'Rudiment', id: 'accent-and-a', title: 'Accents on the and, then the a', goal: 110, start: 60, focus: 'Bar one accents every and, bar two every a, with the same hand-to-hand sticking. Keep the taps low and even.', sticking: ALT16, parts: { snare: 'xxXx xxXx xxXx xxXx' + 'xxxX xxxX xxxX xxxX' } },
+    { collection: 'rudiments', level: 4, kind: 'Rudiment', id: 'four-over-three', title: 'Four over three', goal: 110, start: 60, focus: 'Triplets with an accent on every fourth note. The accents trace four against three and only meet the beat at the top of each bar.', sub: 3, sticking: ALT12, parts: { snare: twice('Xxx xXx xxX xxx') } },
+    { collection: 'rudiments', level: 4, kind: 'Rudiment', id: 'groups-of-three', title: 'Groups of three in sixteenths', goal: 110, start: 60, focus: 'Sixteenths with an accent on every third note. The accents drift across the beat until the loop starts again.', sticking: ALT16, parts: { snare: 'XxxX xxXx xXxx XxxX' + 'xxXx xXxx XxxX xxXx' } },
+    { collection: 'rudiments', level: 4, kind: 'Rudiment', id: 'groups-of-five', title: 'Groups of five in sixteenths', goal: 110, start: 60, focus: 'An accent on every fifth sixteenth. Count the fives out loud while the click keeps counting fours.', sticking: ALT16, parts: { snare: 'Xxxx xXxx xxXx xxxX' + 'xxxx Xxxx xXxx xxXx' } },
+
+    // Fills, level 1: short fills, after a bar of the basic beat
+    { collection: 'fills', level: 1, kind: 'Fill', id: 'fill-quarter-toms', title: 'Quarter notes down the toms', goal: 100, start: 60, focus: 'The second bar ends with the high tom on 3 and the floor tom on 4, then the crash on 1.', sticking: '-'.repeat(24) + 'R--- R---', parts: { crash: CRASH_LOOP, hihat: HAT_IN + 'x-x- x-x- ---- ----', snare: SN + '---- x--- ---- ----', hightom: REST_BAR + '---- ---- x--- ----', floortom: REST_BAR + '---- ---- ---- x---', kick: twice(KK) } },
+    { collection: 'fills', level: 1, kind: 'Fill', id: 'fill-eighths-snare', title: 'Eighth-note fill on the snare', goal: 110, start: 60, focus: 'Four eighths on the snare over beats 3 and 4, hand to hand, then the crash.', sticking: '-'.repeat(24) + 'R-L- R-L-', parts: { crash: CRASH_LOOP, hihat: HAT_IN + 'x-x- x-x- ---- ----', snare: SN + '---- x--- x-x- x-x-', kick: twice(KK) } },
+    { collection: 'fills', level: 1, kind: 'Fill', id: 'fill-eighths-toms', title: 'Eighth notes around the toms', goal: 110, start: 60, focus: 'Two eighths on the snare, one on the high tom, one on the floor tom.', sticking: '-'.repeat(24) + 'R-L- R-L-', parts: { crash: CRASH_LOOP, hihat: HAT_IN + 'x-x- x-x- ---- ----', snare: SN + '---- x--- x-x- ----', hightom: REST_BAR + '---- ---- ---- x---', floortom: REST_BAR + '---- ---- ---- --x-', kick: twice(KK) } },
+    { collection: 'fills', level: 1, kind: 'Fill', id: 'fill-pickup', title: 'Two-note pickup', goal: 110, start: 70, focus: 'Snare on 4 and the and of 4 in the second bar, a small push into the crash.', sticking: '-'.repeat(28) + 'R-L-', parts: { crash: CRASH_LOOP, hihat: HAT_IN + 'x-x- x-x- x-x- ----', snare: SN + '---- x--- ---- x-x-', kick: twice(KK) } },
+
+    // Fills, level 2: one-beat and two-beat
+    { collection: 'fills', level: 2, kind: 'Fill', id: 'fill-one-beat-toms', title: 'One-beat fill on the toms', goal: 100, start: 60, focus: 'Four sixteenths on beat 4: two on the high tom, two on the floor tom.', sticking: '-'.repeat(28) + 'RLRL', parts: { crash: CRASH_LOOP, hihat: HAT_IN + 'x-x- x-x- x-x- ----', snare: SN + '---- x--- ---- ----', hightom: REST_BAR + '---- ---- ---- xx--', floortom: REST_BAR + '---- ---- ---- --xx', kick: twice(KK) } },
+    { collection: 'fills', level: 2, kind: 'Fill', id: 'fill-gallop', title: 'One, and-a fill', goal: 100, start: 60, focus: 'Beat 4 split into an eighth and two sixteenths: snare, high tom, floor tom.', sticking: '-'.repeat(28) + 'R-RL', parts: { crash: CRASH_LOOP, hihat: HAT_IN + 'x-x- x-x- x-x- ----', snare: SN + '---- x--- ---- x---', hightom: REST_BAR + '---- ---- ---- --x-', floortom: REST_BAR + '---- ---- ---- ---x', kick: twice(KK) } },
+    { collection: 'fills', level: 2, kind: 'Fill', id: 'fill-snare-floor', title: 'Two-beat fill, snare to floor tom', goal: 100, start: 60, focus: 'Four sixteenths on the snare, four on the floor tom, then the crash.', sticking: '-'.repeat(24) + 'RLRL RLRL', parts: { crash: CRASH_LOOP, hihat: HAT_IN + 'x-x- x-x- ---- ----', snare: SN + '---- x--- xxxx ----', floortom: REST_BAR + '---- ---- ---- xxxx', kick: twice(KK) } },
+    { collection: 'fills', level: 2, kind: 'Fill', id: 'fill-one-e-and', title: 'One-e-and fill', goal: 100, start: 60, focus: 'Two beats of three notes each: snare on 3, then high tom and floor tom on 4, with a breath on every a.', sticking: '-'.repeat(24) + 'RLR- RLR-', parts: { crash: CRASH_LOOP, hihat: HAT_IN + 'x-x- x-x- ---- ----', snare: SN + '---- x--- xxx- ----', hightom: REST_BAR + '---- ---- ---- xx--', floortom: REST_BAR + '---- ---- ---- --x-', kick: twice(KK) } },
+    { collection: 'fills', level: 2, kind: 'Fill', id: 'fill-tom-accents', title: 'Accents on the toms', goal: 100, start: 60, focus: 'Sixteenths on the snare with the accents moved to the toms: high tom on 3, floor tom on 4.', sticking: '-'.repeat(24) + 'RLRL RLRL', parts: { crash: CRASH_LOOP, hihat: HAT_IN + 'x-x- x-x- ---- ----', snare: SN + '---- x--- -xxx -xxx', hightom: REST_BAR + '---- ---- X--- ----', floortom: REST_BAR + '---- ---- ---- X---', kick: twice(KK) } },
+
+    // Fills, level 3: triplets and kicks
+    { collection: 'fills', sub: 3, level: 3, kind: 'Fill', id: 'fill-rlk-triplets', title: 'Hand, hand, kick in triplets', goal: 100, start: 55, focus: 'Shuffle time, then beats 3 and 4 as high tom, snare, kick and floor tom, snare, kick.', sticking: '-'.repeat(18) + 'RL- RL-', parts: { crash: CRASH_LOOP3, hihat: HAT_IN3 + 'x-x x-x --- ---', snare: SN3 + '--- X-- -x- -x-', hightom: '-'.repeat(12) + '--- --- x-- ---', floortom: '-'.repeat(12) + '--- --- --- x--', kick: KK3 + 'x-- --- --x --x' } },
+    { collection: 'fills', level: 3, kind: 'Fill', id: 'fill-rlk-sixteenths', title: 'Hand, hand, kick in sixteenths', goal: 95, start: 55, focus: 'Groups of three in sixteenths over beats 3 and 4: high tom, snare, kick, twice, then two on the floor tom.', sticking: '-'.repeat(24) + 'RL-R L-RL', parts: { crash: CRASH_LOOP, hihat: HAT_IN + 'x-x- x-x- ---- ----', snare: SN + '---- x--- -x-- x---', hightom: REST_BAR + '---- ---- x--x ----', floortom: REST_BAR + '---- ---- ---- --xx', kick: KK + 'x--- ---- --x- -x--' } },
+    { collection: 'fills', sub: 3, level: 3, kind: 'Fill', id: 'fill-triplet-one-beat', title: 'One-beat triplet fill', goal: 110, start: 60, focus: 'Shuffle time, then a snare triplet on beat 4 of the second bar into the crash.', sticking: '-'.repeat(21) + 'RLR', parts: { crash: CRASH_LOOP3, hihat: HAT_IN3 + 'x-x x-x x-x ---', snare: SN3 + '--- X-- --- xxx', kick: twice(KK3) } },
+    { collection: 'fills', level: 3, kind: 'Fill', id: 'fill-kick-under', title: 'Fill with the kick on the beats', goal: 100, start: 60, focus: 'Sixteenths from the snare to the floor tom over beats 3 and 4, with the kick still on every beat underneath.', sticking: '-'.repeat(24) + 'RLRL RLRL', parts: { crash: CRASH_LOOP, hihat: HAT_IN + 'x-x- x-x- ---- ----', snare: SN + '---- x--- xx-- ----', hightom: REST_BAR + '---- ---- --xx ----', floortom: REST_BAR + '---- ---- ---- xxxx', kick: KK + 'x--- x--- x--- x---' } },
+
+    // Fills, level 4: full bars
+    { collection: 'fills', sub: 3, level: 4, kind: 'Fill', id: 'fill-full-triplets', title: 'Full-bar triplet fill', goal: 100, start: 55, focus: 'A bar of shuffle, then twelve triplets: two beats on the snare, one on each tom, with the kick on every beat.', sticking: '-'.repeat(12) + 'RLR LRL RLR LRL', parts: { crash: CRASH_LOOP3, hihat: HAT_IN3 + '-'.repeat(12), snare: SN3 + 'Xxx xxx --- ---', hightom: '-'.repeat(12) + '--- --- Xxx ---', floortom: '-'.repeat(12) + '--- --- --- Xxx', kick: KK3 + 'x-- x-- x-- x--' } },
+    { collection: 'fills', sub: 3, level: 4, kind: 'Fill', id: 'fill-six-stroke', title: 'Six-stroke roll fill', goal: 90, start: 50, focus: 'The six-stroke roll in triplets, R L L R R L, accented at both ends: once on the snare, once down the toms.', sticking: '-'.repeat(12) + 'RLL RRL RLL RRL', parts: { crash: CRASH_LOOP3, hihat: HAT_IN3 + '-'.repeat(12), snare: SN3 + 'Xxx xxX --- ---', hightom: '-'.repeat(12) + '--- --- Xxx ---', floortom: '-'.repeat(12) + '--- --- --- xxX', kick: twice(KK3) } },
+    { collection: 'fills', level: 4, kind: 'Fill', id: 'fill-mini-solo', title: 'Two-bar mini solo', goal: 90, start: 50, focus: 'Two bars of sixteenths around the kit with kicks between the hands. Play it slowly until every limb knows its turn.', sticking: 'RLR- LR-L R-LR -LR-' + 'LRLR LR-- LRLR --LR', parts: { crash: CRASH_LOOP, snare: '-xx- ---x x--- -xx-' + 'xx-- ---- xx-- --X-', hightom: '---- xx-- ---- ----' + '--xx ---- --x- ----', floortom: '---- ---- --xx ----' + '---- xx-- ---x ---X', kick: 'x--x --x- -x-- x--x' + '---- --xx ---- xx--' } },
+
+    // Funk, level 1: the sixteenth feel
+    { collection: 'funk', level: 1, kind: 'Groove', id: 'kick-and-three', title: 'Kick on the and of 3', goal: 100, start: 70, focus: 'Hi-hat eighths and the backbeat, with a second kick just after 3.', parts: { hihat: EIGHTH_HATS, snare: BACKBEAT, kick: twice('x--- ---- x-x- ----') } },
+    { collection: 'funk', level: 1, kind: 'Groove', id: 'soul-backbeat', title: 'Snare on every beat', goal: 120, start: 80, focus: 'The soul pulse: snare on all four beats, louder on 2 and 4, kick on 1 and 3.', parts: { hihat: EIGHTH_HATS, snare: twice('x--- X--- x--- X---'), kick: twice(KK) } },
+    { collection: 'funk', level: 1, kind: 'Groove', id: 'boom-bap', title: 'Boom bap', goal: 95, start: 70, focus: 'Hip-hop at a lazy tempo: kick on 1, the a of 1 and the and of 3, snare on 2 and 4. Lean back.', parts: { hihat: EIGHTH_HATS, snare: BACKBEAT, kick: twice('x--x ---- --x- ----') } },
+    { collection: 'funk', level: 1, kind: 'Groove', id: 'kick-a-of-four', title: 'Kick on the a of 4', goal: 100, start: 70, focus: 'A sixteenth-note pickup in the kick that pulls the groove back to 1.', parts: { hihat: EIGHTH_HATS, snare: BACKBEAT, kick: twice('x--- ---- x--- ---x') } },
+
+    // Funk, level 2: ghost notes
+    { collection: 'funk', level: 2, kind: 'Groove', id: 'ghost-before', title: 'Ghost note before the backbeat', goal: 100, start: 60, focus: 'A soft left-hand note on the a just before 2 and 4. Keep it barely there and the backbeat full.', parts: { hihat: EIGHTH_HATS, snare: twice('---g X--- ---g X---'), kick: twice('x--- ---- x-x- ----') } },
+    { collection: 'funk', level: 2, kind: 'Groove', id: 'ghost-after', title: 'Ghost note after the backbeat', goal: 100, start: 60, focus: 'The backbeat, then a soft note on the a that follows it, as if the snare bounced.', parts: { hihat: EIGHTH_HATS, snare: twice('---- X--g ---- X--g'), kick: twice(KK) } },
+    { collection: 'funk', level: 2, kind: 'Groove', id: 'ghost-groove', title: 'Ghost-note groove', goal: 100, start: 55, focus: 'Ghost notes on the e and a around a full backbeat. The hat hand stays steady while the left fills the gaps.', parts: { hihat: EIGHTH_HATS, snare: twice('-g-g X--g -g-g X---'), kick: twice('x--- --x- x--- ----') } },
+    { collection: 'funk', level: 2, kind: 'Groove', id: 'one-hand-sixteenths', title: 'One-handed sixteenth hats', goal: 100, start: 60, focus: 'All sixteen hat notes with the right hand, accented on the beat, while the left plays the backbeat.', parts: { hihat: twice('Xxxx Xxxx Xxxx Xxxx'), snare: BACKBEAT, kick: twice('x--- ---- x-x- ----') } },
+    { collection: 'funk', level: 2, kind: 'Groove', id: 'half-time-ghosts', title: 'Half-time with ghost notes', goal: 90, start: 60, focus: 'One backbeat on 3, with ghost notes leading into it and leaving it.', parts: { hihat: EIGHTH_HATS, snare: twice('---- ---g X--g ---g'), kick: twice('x--- --x- ---- -x--') } },
+
+    // Funk, level 3: syncopation
+    { collection: 'funk', level: 3, kind: 'Groove', id: 'open-hat-two-four', title: 'Open hat on the ands of 2 and 4', goal: 100, start: 65, focus: 'The hat opens on the and of 2 and the and of 4 and closes with the stick on the next beat.', parts: { hihat: twice('x-x- x--- x-x- x---'), openhat: twice('---- --x- ---- --x-'), snare: BACKBEAT, kick: twice('x--- ---- x-x- ----') } },
+    { collection: 'funk', level: 3, kind: 'Groove', id: 'late-backbeat', title: 'Late backbeat', goal: 100, start: 60, focus: 'The snare on 4 slides to the and of 4, and the kick takes beat 4.', parts: { hihat: EIGHTH_HATS, snare: twice('---- X--- ---- --X-'), kick: twice('x--- ---- x--- x---') } },
+    { collection: 'funk', level: 3, kind: 'Groove', id: 'busy-kick', title: 'Busy funk kick', goal: 95, start: 60, focus: 'Kick on 1, the and, the a, the and of 3 and the e of 4, under steady hands.', parts: { hihat: EIGHTH_HATS, snare: BACKBEAT, kick: twice('x-xx ---- --x- -x--') } },
+    { collection: 'funk', level: 3, kind: 'Groove', id: 'push', title: 'Push into the next bar', goal: 100, start: 60, focus: 'At the end of the second bar, crash and kick together on the and of 4, half a beat early, and let it ring into 1.', parts: { crash: '-'.repeat(30) + 'x-', hihat: EIGHTH_HATS.slice(0, 16) + 'x-x- x-x- x-x- x---', snare: BACKBEAT, kick: 'x--- ---- x-x- ----' + 'x--- ---- x--- --x-' } },
+
+    // Funk, level 4
+    { collection: 'funk', level: 4, kind: 'Groove', id: 'linear-ghosts', title: 'Linear sixteenths with ghosts', goal: 100, start: 55, focus: 'Every sixteenth is played by exactly one limb, hat, snare or kick, never two at once.', parts: { hihat: twice('-xx- -x-x -x-x -x-x'), snare: twice('---g X--- --g- X---'), kick: twice('x--- --x- x--- --x-') } },
+    { collection: 'funk', level: 4, kind: 'Groove', id: 'sixteenth-funk', title: 'Sixteenth funk with ghosts', goal: 95, start: 55, focus: 'Ghost notes on most of the empty sixteenths, two kicks in a row, and a backbeat that never moves.', parts: { hihat: EIGHTH_HATS, snare: twice('-gg- X-gg -g-g X-g-'), kick: twice('x--x --x- -xx- ----') } },
+    { collection: 'funk', level: 4, kind: 'Groove', id: 'kick-doubles-funk', title: 'Sixteenth kick doubles', goal: 90, start: 55, focus: 'Pairs of sixteenth kicks on 1, around 3 and across the bar line. Keep the heel down and the doubles even.', parts: { hihat: EIGHTH_HATS, snare: BACKBEAT, kick: twice('xx-- ---x x--- --xx') } },
+
+    // Latin, level 1: clave and pulse
+    { collection: 'latin', level: 1, kind: 'Groove', id: 'son-clave', title: 'Son clave, 3-2', goal: 120, start: 70, focus: 'The rhythm Afro-Cuban music hangs on, on the cross-stick: three notes in the first bar, two in the second. The hi-hat foot keeps quarters.', parts: { crossstick: SON32, hatfoot: QUARTERS } },
+    { collection: 'latin', level: 1, kind: 'Groove', id: 'son-clave-23', title: 'Son clave, 2-3', goal: 120, start: 70, focus: 'The same clave starting from its two side. A song picks one direction and keeps it.', parts: { crossstick: SON23, hatfoot: QUARTERS } },
+    { collection: 'latin', level: 1, kind: 'Groove', id: 'rumba-clave', title: 'Rumba clave', goal: 120, start: 70, focus: 'The son clave with its third note moved half a beat later, onto the and of 4.', parts: { crossstick: RUMBA32, hatfoot: QUARTERS } },
+    { collection: 'latin', level: 1, kind: 'Groove', id: 'tresillo', title: 'Tresillo kick', goal: 110, start: 70, focus: 'Three plus three plus two eighths in the kick under a plain backbeat. You hear it in Latin music, R&B and pop.', parts: { hihat: EIGHTH_HATS, snare: BACKBEAT, kick: twice('x--x --x- x--x --x-') } },
+
+    // Latin, level 2: reggae
+    { collection: 'latin', level: 2, kind: 'Groove', id: 'one-drop', title: 'Reggae one drop', goal: 80, start: 60, focus: 'Nothing on 1: kick and cross-stick land together on 3 of every bar, under steady hi-hat eighths.', parts: { hihat: EIGHTH_HATS, crossstick: twice('---- ---- x--- ----'), kick: twice('---- ---- x--- ----') } },
+    { collection: 'latin', level: 2, kind: 'Groove', id: 'rockers', title: 'Reggae rockers', goal: 90, start: 65, focus: 'Kick on 1 and 3, cross-stick on 3, and the hi-hat only on the ands.', parts: { hihat: OFFBEATS, crossstick: twice('---- ---- x--- ----'), kick: twice(KK) } },
+    { collection: 'latin', level: 2, kind: 'Groove', id: 'steppers', title: 'Reggae steppers', goal: 100, start: 70, focus: 'Four kicks to the bar, cross-stick on 3, the hi-hat on the ands.', parts: { hihat: OFFBEATS, crossstick: twice('---- ---- x--- ----'), kick: QUARTERS } },
+    { collection: 'latin', sub: 3, level: 2, kind: 'Groove', id: 'one-drop-triplets', title: 'One drop with triplet hats', goal: 80, start: 55, focus: 'The one drop in a triplet feel: swung hats, a ghost note on the last triplet of 2, and kick and cross-stick on 3.', parts: { hihat: twice(SWUNG), snare: twice('--- --g --- ---'), crossstick: twice('--- --- x-- ---'), kick: twice('--- --- x-- ---') } },
+
+    // Latin, level 3: clave independence
+    { collection: 'latin', level: 3, kind: 'Groove', id: 'clave-ride', title: 'Clave over the ride', goal: 110, start: 60, focus: 'Ride eighths in the right hand against the 3-2 son clave on the cross-stick, the hi-hat foot on 2 and 4.', parts: { ride: EIGHTH_HATS, crossstick: SON32, hatfoot: BACKBEAT } },
+    { collection: 'latin', level: 3, kind: 'Groove', id: 'clave-tumbao', title: 'Clave, ride and tumbao', goal: 110, start: 60, focus: 'Add the bass tumbao in the kick, on the and of 2 and on 4, against the clave.', parts: { ride: EIGHTH_HATS, crossstick: SON32, kick: TUMBAO, hatfoot: BACKBEAT } },
+    { collection: 'latin', level: 3, kind: 'Groove', id: 'rumba-tumbao', title: 'Rumba clave with the tumbao', goal: 110, start: 60, focus: 'The same layers with the rumba clave, whose late third note sits against the ride.', parts: { ride: EIGHTH_HATS, crossstick: RUMBA32, kick: TUMBAO, hatfoot: BACKBEAT } },
+    { collection: 'latin', level: 3, kind: 'Groove', id: 'clave-23-tumbao', title: '2-3 clave with ride and tumbao', goal: 110, start: 60, focus: 'The clave turned around to start on its two side, the ride and tumbao unchanged.', parts: { ride: EIGHTH_HATS, crossstick: SON23, kick: TUMBAO, hatfoot: BACKBEAT } },
+
+    // Latin, level 4
+    { collection: 'latin', level: 4, kind: 'Groove', id: 'clave-foot', title: 'Clave in the left foot', goal: 100, start: 50, focus: 'The hi-hat foot takes the 3-2 son clave while the hands play ride eighths and a cross-stick on 3, and the kick keeps the tumbao.', parts: { ride: EIGHTH_HATS, crossstick: twice('---- ---- x--- ----'), kick: TUMBAO, hatfoot: SON32 } },
+    { collection: 'latin', level: 4, kind: 'Groove', id: 'tresillo-toms', title: 'Tresillo on the toms', goal: 100, start: 55, focus: 'Sixteenths hand to hand around the toms, the accents grouped three, three and two eighths, with the kick on every beat.', sticking: ALT16, parts: { hightom: twice('Xxxx xx-- ---- ----'), snare: twice('---- --Xx xxxx ----'), floortom: twice('---- ---- ---- Xxxx'), kick: QUARTERS } },
+    { collection: 'latin', level: 4, kind: 'Fill', id: 'one-drop-fill', title: 'One drop with a fill', goal: 80, start: 55, focus: 'The one drop, with four sixteenths on the toms closing the second bar.', sticking: '-'.repeat(28) + 'RLRL', parts: { hihat: EIGHTH_HATS.slice(0, 16) + 'x-x- x-x- x-x- ----', crossstick: twice('---- ---- x--- ----'), hightom: REST_BAR + '---- ---- ---- xx--', floortom: REST_BAR + '---- ---- ---- --xx', kick: twice('---- ---- x--- ----') } },
   ];
 
   const GROUPS = COLLECTIONS.map((c) => ({
@@ -178,7 +330,7 @@
     for (const u of c.units) {
       for (const ex of u.items) {
         const shape = shapeOf(ex);
-        EXERCISES.set(ex.id, { ...ex, ...shape, collection: c.id, collectionTitle: c.title, unit: u.title, pattern: build(ex.parts, shape.grid) });
+        EXERCISES.set(ex.id, { ...ex, ...shape, sticking: ex.sticking ? ex.sticking.replace(/\s/g, '') : null, collection: c.id, collectionTitle: c.title, unit: u.title, pattern: build(ex.parts, shape.grid) });
       }
     }
   }
@@ -423,6 +575,7 @@
     const nb = beats();
     seq.style.setProperty('--sub', n);
     seq.style.setProperty('--beats', nb);
+    lanes.style.setProperty('--steps', total());
     seq.setAttribute('aria-label', `Beat box pads, two bars of ${state.meter} in ${meter().compound ? 'eighth notes' : n === 3 ? 'triplets' : 'sixteenth notes'}`);
     seq.textContent = '';
     const countRow = document.createElement('div');
