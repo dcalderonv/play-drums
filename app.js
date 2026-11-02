@@ -186,7 +186,7 @@
   /* Local storage, failing quietly when the browser refuses it */
   const store = {
     get(k, d) { try { const v = localStorage.getItem('play-drums:' + k); return v ? JSON.parse(v) : d; } catch { return d; } },
-    set(k, v) { try { localStorage.setItem('play-drums:' + k, JSON.stringify(v)); } catch { /* storage unavailable */ } },
+    set(k, v) { try { localStorage.setItem('play-drums:' + k, JSON.stringify(v)); return true; } catch { return false; } },
   };
   const bests = store.get('bests', {});
   const grooves = store.get('grooves', []);
@@ -829,38 +829,129 @@
   }
 
   /* ---------- Library ---------- */
+  /* ---------- Library: folding, searching and sorting ---------- */
+  const folds = store.get('folds', {});
+  let grooveSort = store.get('groove-sort', 'newest');
+  let query = '';
+  const CHEVRON = '<svg class="icon fold__icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>';
+
+  /* A search is words; an item matches when every word appears somewhere in its text. */
+  const words = () => query.toLowerCase().split(/\s+/).filter(Boolean);
+  const matches = (hay) => { const h = hay.toLowerCase(); return words().every((w) => h.includes(w)); };
+  const reEsc = (w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  /* Escapes the text and marks the searched words in it. */
+  const mark = (text) => {
+    const ws = words();
+    if (!ws.length) return esc(text);
+    const re = new RegExp(`(${ws.map(reEsc).join('|')})`, 'gi');
+    return String(text).split(re).map((part, i) => (i % 2 ? `<mark>${esc(part)}</mark>` : esc(part))).join('');
+  };
+  const exText = (ex, c, u) => [ex.title, ex.kind, ex.focus, shapeName(shapeOf(ex)), c.title, c.tab, u.title].join(' ');
+  const grooveText = (g) => [g.name, shapeName(shapeOf(g)), `${g.bpm} bpm`].join(' ');
+
+  const SORTS = {
+    newest: (a, b) => Date.parse(b.saved) - Date.parse(a.saved),
+    oldest: (a, b) => Date.parse(a.saved) - Date.parse(b.saved),
+    name: (a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }),
+    tempo: (a, b) => a.bpm - b.bpm || a.name.localeCompare(b.name, undefined, { numeric: true }),
+  };
+
+  const foldButton = (key, label, controls, count) => {
+    const open = !folds[key];
+    return `<button class="fold" type="button" data-fold="${key}" aria-expanded="${open}" aria-controls="${controls}"><span>${label}</span> <span class="fold__count">${count}</span>${CHEVRON}</button>`;
+  };
+
+  const exRow = (ex, extra) => {
+    const best = bests[ex.id];
+    return `<li><a class="ex" href="?ex=${ex.id}" data-ex="${ex.id}"${state.kind === 'exercise' && state.item.id === ex.id ? ' aria-current="page"' : ''}>
+      <span class="ex__name">${mark(ex.title)}</span>
+      <span class="ex__meta">${extra ? `<span>${extra}</span>` : ''}<span>${ex.kind}</span>${shapeOf(ex).meter !== '4/4' ? `<span>${ex.meter}</span>` : ''}<span>Goal <span class="measured">${ex.goal}</span> BPM</span>${best ? `<span class="ex__best">Clean at <span class="measured">${best.bpm}</span></span>` : ''}</span>
+    </a></li>`;
+  };
+
   function renderLibrary() {
     const units = $('#units');
-    const tabs = GROUPS.map((c) => `<button class="collections__tab" type="button" role="tab" id="tab-${c.id}" aria-controls="panel-${c.id}" aria-selected="${state.view === c.id}" tabindex="${state.view === c.id ? 0 : -1}">${c.tab}</button>`).join('');
-    const panels = GROUPS.map((c) => `
-      <div class="collections__panel" role="tabpanel" id="panel-${c.id}" aria-labelledby="tab-${c.id}"${state.view === c.id ? '' : ' hidden'}>
-        ${c.units.filter((u) => u.items.length).map((u, n) => `
-        <section class="library__group" aria-labelledby="unit-${c.id}-${n}">
-          <h2 id="unit-${c.id}-${n}">${u.title}</h2>
-          <ol class="ex-list">${u.items.map((ex) => {
-            const best = bests[ex.id];
-            return `<li><a class="ex" href="?ex=${ex.id}" data-ex="${ex.id}"${state.kind === 'exercise' && state.item.id === ex.id ? ' aria-current="page"' : ''}>
-              <span class="ex__name">${ex.title}</span>
-              <span class="ex__meta"><span>${ex.kind}</span>${shapeOf(ex).meter !== '4/4' ? `<span>${ex.meter}</span>` : ''}<span>Goal <span class="measured">${ex.goal}</span> BPM</span>${best ? `<span class="ex__best">Clean at <span class="measured">${best.bpm}</span></span>` : ''}</span>
-            </a></li>`;
-          }).join('')}</ol>
-        </section>`).join('')}
-      </div>`).join('');
-    units.innerHTML = `<div class="collections" role="tablist" aria-label="Collections">${tabs}</div>${panels}`;
+    let exerciseHits = 0;
+    if (query.trim()) {
+      // Searching looks through every collection at once, so the tabs and folds step aside.
+      const found = GROUPS.map((c) => ({ c, rows: c.units.flatMap((u, n) => u.items.filter((ex) => matches(exText(ex, c, u))).map((ex) => exRow(ex, `Level ${n + 1}`))) })).filter((r) => r.rows.length);
+      exerciseHits = found.reduce((n, r) => n + r.rows.length, 0);
+      units.innerHTML = `<div class="library__results">${found.length ? found.map(({ c, rows }) => `
+        <section class="library__group" aria-labelledby="found-${c.id}">
+          <h2 class="library__found" id="found-${c.id}"><span>${c.title}</span> <span class="fold__count">${rows.length}</span></h2>
+          <ol class="ex-list">${rows.join('')}</ol>
+        </section>`).join('') : `<p class="library__empty">No exercises match ${esc(query.trim())}.</p>`}</div>`;
+    } else {
+      const tabs = GROUPS.map((c) => `<button class="collections__tab" type="button" role="tab" id="tab-${c.id}" aria-controls="panel-${c.id}" aria-selected="${state.view === c.id}" tabindex="${state.view === c.id ? 0 : -1}">${c.tab}</button>`).join('');
+      const panels = GROUPS.map((c) => `
+        <div class="collections__panel" role="tabpanel" id="panel-${c.id}" aria-labelledby="tab-${c.id}"${state.view === c.id ? '' : ' hidden'}>
+          ${c.units.map((u, n) => {
+            if (!u.items.length) return '';
+            const key = `${c.id}-${n + 1}`;
+            return `
+          <section class="library__group" aria-labelledby="unit-${key}">
+            <h2 id="unit-${key}">${foldButton(key, u.title, 'list-' + key, u.items.length)}</h2>
+            <ol class="ex-list" id="list-${key}"${folds[key] ? ' hidden' : ''}>${u.items.map((ex) => exRow(ex)).join('')}</ol>
+          </section>`;
+          }).join('')}
+        </div>`).join('');
+      units.innerHTML = `<div class="collections" role="tablist" aria-label="Collections">${tabs}</div>${panels}`;
+    }
 
-    const list = $('#grooves');
-    list.innerHTML = grooves.map((g) => `<li>
+    const searching = !!query.trim();
+    const shown = grooves.filter((g) => !searching || matches(grooveText(g))).sort(SORTS[grooveSort] || SORTS.newest);
+    $('#grooves').innerHTML = shown.map((g) => `<li>
       <a class="ex" href="?groove=${g.id}" data-groove="${g.id}"${state.kind === 'groove' && state.item.id === g.id ? ' aria-current="page"' : ''}>
-        <span class="ex__name">${esc(g.name)}</span>
+        <span class="ex__name">${mark(g.name)}</span>
         <span class="ex__meta"><span>${shapeName(shapeOf(g))}</span><span><span class="measured">${g.bpm}</span> BPM</span><span>Saved ${dateFmt.format(new Date(g.saved))}</span></span>
       </a>
       <button class="btn btn--icon" type="button" data-delete="${g.id}" aria-label="Delete ${esc(g.name)}">
         <svg class="icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>
       </button>
     </li>`).join('');
+    $('#grooves-count').textContent = grooves.length ? String(searching ? shown.length : grooves.length) : '';
     $('#grooves-empty').hidden = grooves.length > 0;
+    const nomatch = $('#grooves-nomatch');
+    nomatch.hidden = !searching || !grooves.length || shown.length > 0;
+    nomatch.textContent = `No grooves match ${query.trim()}.`;
     $('#grooves-export').disabled = !grooves.length;
+    const sort = $('#grooves-sort');
+    sort.hidden = grooves.length < 2;
+    sort.value = grooveSort;
+    // While searching, My grooves stays open so its matches are never hidden.
+    for (const key of ['grooves', 'keys']) {
+      const btn = document.querySelector(`.library [data-fold="${key}"]`);
+      const open = (key === 'grooves' && searching) || !folds[key];
+      btn.setAttribute('aria-expanded', String(open));
+      btn.disabled = key === 'grooves' && searching;
+      document.getElementById(btn.getAttribute('aria-controls')).hidden = !open;
+    }
+    $('#search-status').textContent = searching ? `${exerciseHits} exercise${exerciseHits === 1 ? '' : 's'} and ${plural(shown.length)} match.` : '';
   }
+
+  function toggleFold(key) {
+    if (key === 'grooves' && query.trim()) return;
+    if (folds[key]) delete folds[key]; else folds[key] = true;
+    store.set('folds', folds);
+    renderLibrary();
+    const btn = document.querySelector(`.library [data-fold="${key}"]`);
+    if (btn) btn.focus();
+  }
+
+  /* Opening an item from a search, a link or the back button opens the level it sits in. */
+  function unfoldCurrent() {
+    if (state.kind !== 'exercise') return;
+    const u = GROUPS.find((c) => c.id === state.item.collection).units.findIndex((x) => x.items.some((ex) => ex.id === state.item.id));
+    const key = `${state.item.collection}-${u + 1}`;
+    if (folds[key]) { delete folds[key]; store.set('folds', folds); }
+  }
+
+  const searchInput = $('#lib-search');
+  searchInput.addEventListener('input', () => { query = searchInput.value; renderLibrary(); });
+  searchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && searchInput.value) { e.preventDefault(); searchInput.value = ''; query = ''; renderLibrary(); }
+  });
+  $('#grooves-sort').addEventListener('change', (e) => { grooveSort = e.target.value; store.set('groove-sort', grooveSort); renderLibrary(); });
 
   function showCollection(id, focus) {
     state.view = id;
@@ -871,6 +962,8 @@
   $('.library').addEventListener('click', (e) => {
     const tab = e.target.closest('.collections__tab');
     if (tab) { showCollection(tab.id.replace('tab-', ''), true); return; }
+    const fold = e.target.closest('[data-fold]');
+    if (fold) { toggleFold(fold.dataset.fold); return; }
     const link = e.target.closest('a[data-ex], a[data-groove]');
     if (link) {
       e.preventDefault();
@@ -926,6 +1019,7 @@
   }
 
   /* ---------- Exporting and importing grooves ---------- */
+  const FULL = "Your browser's storage for this app is full. Export your grooves to keep a copy, then delete some to make room.";
   function groovesSay(msg) {
     clearTimeout(undoTimer);
     $('#grooves-status').textContent = msg;
@@ -986,7 +1080,7 @@
     const prints = new Set(grooves.map((g) => { const sh = shapeOf(g); return fingerprint({ ...sh, pattern: normalize(g.pattern, sh.grid) }); }));
     const ids = new Set(grooves.map((g) => g.id));
     const names = new Set(grooves.map((g) => g.name));
-    let n = grooves.reduce((m, g) => Math.max(m, +(g.name.match(/\d+$/) || [0])[0]), 0);
+    let n = grooves.reduce((m, g) => Math.max(m, +((g.name.match(/^Groove (\d+)$/) || [0, 0])[1])), 0);
     const added = [];
     for (const g of found) {
       const print = fingerprint(g);
@@ -1005,7 +1099,11 @@
       return;
     }
     grooves.unshift(...added);
-    store.set('grooves', grooves);
+    if (!store.set('grooves', grooves)) {
+      grooves.splice(0, added.length);
+      groovesSay(`Nothing was imported. ${FULL}`);
+      return;
+    }
     renderLibrary();
     groovesSay(`Imported ${plural(added.length)}.${skipped ? ` ${plural(skipped)} already in your list ${skipped === 1 ? 'was' : 'were'} skipped.` : ''}`);
   }
@@ -1196,10 +1294,20 @@
   });
 
   $('#bb-save').addEventListener('click', () => {
-    const n = grooves.reduce((m, g) => Math.max(m, +(g.name.match(/\d+$/) || [0])[0]), 0) + 1;
+    const n = grooves.reduce((m, g) => Math.max(m, +((g.name.match(/^Groove (\d+)$/) || [0, 0])[1])), 0) + 1;
     const g = { id: 'g' + Date.now().toString(36), name: 'Groove ' + n, bpm: state.bpm, meter: state.meter, sub: state.sub, grid: state.grid, saved: new Date().toISOString(), pattern: clone(state.pattern), sticking: state.sticking };
     grooves.unshift(g);
-    store.set('grooves', grooves);
+    if (!store.set('grooves', grooves)) {
+      grooves.shift();
+      groovesSay(`This groove was not saved. ${FULL}`);
+      if (folds.grooves) { delete folds.grooves; store.set('folds', folds); }
+      renderLibrary();
+      return;
+    }
+    // The new groove should be in sight: clear a search it may not match and open My grooves.
+    searchInput.value = '';
+    query = '';
+    if (folds.grooves) { delete folds.grooves; store.set('folds', folds); }
     load('groove', g.id, state.bpm, true);
   });
 
@@ -1213,6 +1321,14 @@
     else if (e.key === '+' || e.key === '=') setBpm(state.bpm + 1);
     else if (e.key === '-' || e.key === '_') setBpm(state.bpm - 1);
     else if (e.key === 't' || e.key === 'T') tap();
+    else if (e.key === '/') {
+      // On a phone the library is folded behind its toggle, so open it first.
+      e.preventDefault();
+      const lib = $('.library');
+      if (!lib.classList.contains('is-open')) { lib.classList.add('is-open'); $('.library__toggle').setAttribute('aria-expanded', 'true'); }
+      searchInput.focus();
+      searchInput.select();
+    }
   });
 
   /* ---------- Loading an item and the URL ---------- */
@@ -1233,6 +1349,7 @@
     state.pattern = normalize(item.pattern, state.grid);
     state.sticking = item.sticking || null;
     if (kind === 'exercise') state.view = item.collection;
+    unfoldCurrent();
     if (state.playing) { nextStep %= total(); queue = queue.filter((q) => q.count); shown = null; }
     setBpm(bpm || (kind === 'groove' ? item.bpm : item.start));
     renderHeader();

@@ -37,29 +37,51 @@
     <nav class="library" aria-label="Exercises and grooves">
       <button class="btn library__toggle" type="button" aria-expanded="false" aria-controls="library-body">Exercises and grooves</button>
       <div class="library__body" id="library-body">
+        <div class="search" role="search">
+          <label class="visually-hidden" for="lib-search">Search exercises and grooves</label>
+          <svg class="icon search__icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+          <input class="search__input" type="search" id="lib-search" placeholder="Search the library" autocomplete="off" spellcheck="false">
+          <p class="visually-hidden" id="search-status" aria-live="polite"></p>
+        </div>
+
         <div id="units"></div>
 
         <section class="library__group" aria-labelledby="grooves-h">
-          <h2 id="grooves-h">My grooves</h2>
-          <ul class="ex-list" id="grooves"></ul>
-          <p class="library__empty" id="grooves-empty">No saved grooves yet. Build one in the beat box and press Save as a groove, or import a groove file.</p>
-          <div class="library__actions">
-            <button class="btn" type="button" id="grooves-export">Export grooves</button>
-            <button class="btn" type="button" id="grooves-import">Import grooves</button>
-            <input class="visually-hidden" type="file" id="grooves-file" accept=".json,application/json" tabindex="-1" aria-hidden="true">
+          <div class="library__head">
+            <h2 id="grooves-h"><button class="fold" type="button" data-fold="grooves" aria-expanded="true" aria-controls="grooves-body"><span>My grooves</span> <span class="fold__count" id="grooves-count"></span><svg class="icon fold__icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button></h2>
+            <label class="visually-hidden" for="grooves-sort">Sort grooves</label>
+            <select class="sort" id="grooves-sort">
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="name">Name</option>
+              <option value="tempo">Tempo</option>
+            </select>
           </div>
-          <p class="library__status" id="grooves-status" role="status"></p>
+          <div class="library__fold" id="grooves-body">
+            <ul class="ex-list" id="grooves"></ul>
+            <p class="library__empty" id="grooves-empty">No saved grooves yet. Build one in the beat box and press Save as a groove, or import a groove file.</p>
+            <p class="library__empty" id="grooves-nomatch" hidden></p>
+            <div class="library__actions">
+              <button class="btn" type="button" id="grooves-export">Export grooves</button>
+              <button class="btn" type="button" id="grooves-import">Import grooves</button>
+              <input class="visually-hidden" type="file" id="grooves-file" accept=".json,application/json" tabindex="-1" aria-hidden="true">
+            </div>
+            <p class="library__status" id="grooves-status" role="status"></p>
+          </div>
         </section>
 
         <section class="library__group" aria-labelledby="keys-h">
-          <h2 id="keys-h">Keys</h2>
-          <dl class="keys">
-            <div><dt><kbd>Space</kbd></dt><dd>Play or stop</dd></div>
-            <div><dt><kbd>+</kbd> <kbd>&minus;</kbd></dt><dd>Tempo up or down by 1</dd></div>
-            <div><dt><kbd>T</kbd></dt><dd>Tap the tempo</dd></div>
-            <div><dt>Arrows</dt><dd>Move between pads</dd></div>
-          </dl>
-          <p class="library__note">A pad cycles through hit, accent, ghost note and off.</p>
+          <h2 id="keys-h"><button class="fold" type="button" data-fold="keys" aria-expanded="true" aria-controls="keys-body"><span>Keys</span><svg class="icon fold__icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button></h2>
+          <div class="library__fold" id="keys-body">
+            <dl class="keys">
+              <div><dt><kbd>Space</kbd></dt><dd>Play or stop</dd></div>
+              <div><dt><kbd>+</kbd> <kbd>&minus;</kbd></dt><dd>Tempo up or down by 1</dd></div>
+              <div><dt><kbd>T</kbd></dt><dd>Tap the tempo</dd></div>
+              <div><dt><kbd>/</kbd></dt><dd>Search the library</dd></div>
+              <div><dt>Arrows</dt><dd>Move between pads</dd></div>
+            </dl>
+            <p class="library__note">A pad cycles through hit, accent, ghost note and off.</p>
+          </div>
         </section>
 
         <section class="library__group" aria-labelledby="install-h" id="install" hidden>
