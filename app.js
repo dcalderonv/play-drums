@@ -1477,6 +1477,8 @@
 
   document.addEventListener('keydown', (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
+    // An open dialog owns the keyboard; the page behind it does not react.
+    if (document.querySelector('dialog[open]')) return;
     const t = e.target;
     const typing = t.closest && t.closest('input:not([type="radio"]):not([type="range"]), textarea, select, [contenteditable]');
     const onControl = t.closest && t.closest('button, a, input');
@@ -1555,6 +1557,18 @@
 
   panelToggle.addEventListener('click', () => setLibraryHidden(!root.classList.contains('library-off')));
   renderPanel();
+
+  /* ---------- About ---------- */
+  const about = $('#about');
+  const exerciseCount = GROUPS.reduce((n, c) => n + c.units.reduce((m, u) => m + u.items.length, 0), 0);
+  $('#about-library').textContent = `${exerciseCount} exercises in ${GROUPS.length} collections, each sorted from easiest to hardest. Your own grooves sit beside them.`;
+  $('#about-open').addEventListener('click', () => about.showModal());
+  // A click on the backdrop lands on the dialog itself, outside its content box.
+  about.addEventListener('click', (e) => {
+    if (e.target !== about) return;
+    const r = about.getBoundingClientRect();
+    if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) about.close();
+  });
 
   /* ---------- Installing the app ---------- */
   // The service worker keeps a copy of the app for offline use; it needs http(s), so file:// pages skip it.

@@ -33,6 +33,9 @@
         </ol>
       </nav>
       <p class="today"><span class="today__label">Practised today</span> <span class="measured" id="today">0:00</span></p>
+      <button class="btn btn--icon bar__icon" type="button" id="about-open" aria-haspopup="dialog" aria-controls="about" aria-label="About Play Drums" title="About Play Drums">
+        <svg class="icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M8 7.25v3.75"/><circle class="icon__dot" cx="8" cy="5" r="0.4"/></svg>
+      </button>
     </div>
   </header>
 
@@ -185,6 +188,22 @@
       </div>
     </main>
   </div>
+
+  <dialog class="about" id="about" aria-labelledby="about-h">
+    <div class="about__head">
+      <h2 id="about-h">About Play Drums</h2>
+      <form method="dialog"><button class="btn btn--icon bar__icon" type="submit" aria-label="Close">
+        <svg class="icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+      </button></form>
+    </div>
+    <p class="about__lede">A practice room for drummers coming back to the kit. Follow an exercise on the score at your own tempo, then build your own grooves in the beat box.</p>
+    <dl class="about__facts">
+      <div><dt>Library</dt><dd id="about-library">Exercises in collections, easiest first</dd></div>
+      <div><dt>Your data</dt><dd>Grooves, clean runs and practice time stay in this browser. Export your grooves to keep a copy or move them.</dd></div>
+      <div><dt>Offline</dt><dd>Install it from the browser and it runs without a connection.</dd></div>
+      <div><dt>Made by</dt><dd class="about__credit">Daniel Calderón-Villegas + Claude</dd></div>
+    </dl>
+  </dialog>
 
   <script src="app.js"></script>
 </body>

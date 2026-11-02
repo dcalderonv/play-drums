@@ -69,6 +69,29 @@ kbd {
   max-width: var(--container); height: var(--bar-height); margin-inline: auto; padding-inline: var(--space-lg);
 }
 /* The panel button: its left column is filled while the library shows */
+/* Icon buttons in the bar: quiet until hovered */
+.bar__icon { width: 32px; min-height: 32px; border-color: transparent; background: transparent; color: var(--color-ink-2); }
+.bar__icon:hover { background: var(--color-paper-2); color: var(--color-ink); }
+.bar__icon .icon { fill: none; }
+.bar__icon .icon__dot { fill: currentColor; }
+.today + .bar__icon { margin-right: calc(-1 * var(--space-xs)); }
+
+/* About */
+.about {
+  width: min(32rem, calc(100% - 2 * var(--space-md))); max-height: calc(100dvh - 2 * var(--space-md)); padding: var(--space-lg);
+  border: var(--rule-hair) solid var(--color-rule-2); border-radius: var(--radius-card); background: var(--color-paper-2); color: var(--color-ink-2);
+}
+.about::backdrop { background: color-mix(in oklab, var(--color-paper-3) 72%, transparent); }
+.about[open] { display: grid; gap: var(--space-md); }
+.about__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); }
+.about__head h2 { font-size: var(--text-xl); color: var(--color-ink); }
+.about__lede { color: var(--color-ink-2); }
+.about__facts { display: grid; gap: var(--space-sm); margin: 0; padding-top: var(--space-md); border-top: var(--rule-hair) solid var(--color-rule); font-size: var(--text-sm); }
+.about__facts > div { display: grid; grid-template-columns: 6rem minmax(0, 1fr); gap: var(--space-sm); align-items: baseline; }
+.about__facts dt { color: var(--color-muted); }
+.about__facts dd { margin: 0; color: var(--color-ink-2); }
+.about__credit { color: var(--color-ink); font-weight: 500; }
+@media (max-width: 30rem) { .about__facts > div { grid-template-columns: minmax(0, 1fr); gap: var(--space-3xs); } }
 .bar__panel { width: 32px; min-height: 32px; margin-left: calc(-1 * var(--space-xs)); border-color: transparent; background: transparent; color: var(--color-ink-2); }
 .bar__panel:hover { background: var(--color-paper-2); color: var(--color-ink); }
 .bar__panel .icon { fill: none; }
